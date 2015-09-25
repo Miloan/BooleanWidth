@@ -46,6 +46,36 @@ namespace Boolean_Width
             }
         }
 
+        public Graph(Graph graph)
+        {
+            vertices = graph.vertices.Copy();
+
+            AdjacencyMatrix = new BitSet[graph.Size];
+
+            Size = graph.Size;
+
+            for (int i = 0; i < Size; i++)
+            {
+                AdjacencyMatrix[i] = graph.AdjacencyMatrix[i].Copy();
+            }
+        }
+
+        public void RemoveVertex (int i)
+        {
+            vertices.Remove(i);
+            foreach (int j in AdjacencyMatrix[i])
+            {
+                Disconnect(i, j);
+            }
+        }
+
+        // Removes an edge between vertex i and j by removing them from each others neighborhoods
+        public void Disconnect(int i, int j)
+        {
+            AdjacencyMatrix[i].Remove(j);
+            AdjacencyMatrix[j].Remove(i);
+        }
+
         // Creates an edge between vertex i and j by adding them to each others neighborhoods
         public void Connect(int i, int j)
         {
@@ -100,6 +130,11 @@ namespace Boolean_Width
                     if (v < w)  // avoids printing edges twice
                         sw.WriteLine("e {0} {1}", v + 1, w + 1);
             sw.Close();
+        }
+
+        public Graph Clone ()
+        {
+            return new Graph(this);
         }
     }
 }

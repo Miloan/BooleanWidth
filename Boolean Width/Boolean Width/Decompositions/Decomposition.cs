@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace Boolean_Width
 {
@@ -196,6 +197,23 @@ namespace Boolean_Width
         public void ToFile(string filename)
         {
             Tree.ToFile(filename);
+        }
+        public static Decomposition FromLinearDecomposition(LinearDecomposition ld)
+        {
+            Tree tree = new Tree();
+            tree.Insert(ld.Graph.Vertices);
+            BitSet parent = ld.Graph.Vertices;
+            foreach (int item in ld.Sequence.Take(ld.Sequence.Count - 1))
+            {
+                tree.InsertWithParent(parent * item, parent);
+                tree.InsertWithParent(parent - item, parent);
+                parent = parent - item;
+            }
+            return new Decomposition(ld.Graph, tree)
+            {
+                // TODO: speed up using this
+                //maxNeighborhoodSize = ld.MaxNeighborhoodSize
+            };
         }
     }
 }

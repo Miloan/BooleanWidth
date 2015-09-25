@@ -29,12 +29,6 @@ namespace Boolean_Width
 		// We can view this collection as a bitarray
 		private Block[] Data;
 
-        // This bool tells us if we already have initialized the bitmasks for all integers in our range. We check if all bitsets are initialized when we add an element, since that should be the first time
-        // that we need to use an identifier.
-        // This can be replaced by a pre-processing step in order to avoid doing an unneeded if-check every single time. The upside to not doing pre-processing is that we an user of the bitset class does
-        // not have to think about initializing all bitsets.
-        private static bool Initialized = false;
-
 		// Each block has a blocksize of 64. This value should be equal to the size of bits of the undelrying data representative (called Block)
 		protected static readonly int BlockSize = 64; // DO NOT CHANGE, number of bits in each block, which is the number of bits in an ulong currently
 
@@ -50,6 +44,7 @@ namespace Boolean_Width
 			}
 		}
 
+        // TODO: Keep this as a value
 		// Returns the number of elements that are actually contained in this BitSet.
         public int Count { get { return count(); } }
 
@@ -99,11 +94,6 @@ namespace Boolean_Width
         {
             if (!CheckBounds(i))
                 throw new Exception("Element is out of bounds for the BitSet");
-
-            // Initialize the bitmasks for all integers in the range
-            // When we add an item it should be the first time that we actually need to initialize all identifiers
-            if (!Initialized)
-                Identifiers.Initialize();
 
             // Don't readd elements that are already contained in this set
             if (Contains(i))
@@ -446,7 +436,7 @@ namespace Boolean_Width
             public static Block[] BitPowers;
             public static Dictionary<Block, int> BitPositions;
 
-            public static void Initialize()
+            static Identifiers ()
             {
                 BitPowers = new Block[BitSet.BlockSize];
                 BitPositions = new Dictionary<Block, int>();
@@ -457,8 +447,6 @@ namespace Boolean_Width
                     BitPowers[i] = id;
                     BitPositions[id] = i;
                 }
-
-                Initialized = true;
             }
         }
 

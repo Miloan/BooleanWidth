@@ -66,6 +66,12 @@
     <Compile Include="Maximal IS Counting\BronKerbosch.cs" />
     <Compile Include="Maximal IS Counting\CC_MIS.cs" />
     <Compile Include="Maximal IS Counting\Tomita.cs" />
+    <Compile Include="Preprocessing\GraphPreprocessor.cs" />
+    <Compile Include="Preprocessing\ReductionRules\IReductionRule.cs" />
+    <Compile Include="Preprocessing\ReductionRules\IsletReductionRule.cs" />
+    <Compile Include="Preprocessing\ReductionRules\PendantReductionRule.cs" />
+    <Compile Include="Preprocessing\ReductionRules\ReductionRuleHelper.cs" />
+    <Compile Include="Preprocessing\ReductionRules\TwinReductionRule.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Representatives\RepresentativeList.cs" />
