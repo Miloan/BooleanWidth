@@ -29,7 +29,7 @@ namespace Boolean_Width
                 string[] s = line.Trim().Split(' ');
                 BitSet node = new BitSet(0, graph.Size);
                 foreach (string vertex in s)
-                    node.Add(int.Parse(vertex) - 1); // -1 because internally we work with [0,...,n)
+                    node += int.Parse(vertex) - 1; // -1 because internally we work with [0,...,n)
                 tree.Insert(node);
             }
 

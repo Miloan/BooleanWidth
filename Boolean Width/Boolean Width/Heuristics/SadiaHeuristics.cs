@@ -28,7 +28,7 @@ namespace Boolean_Width
             foreach (BitSet connectedComponent in connectedComponents)
             {
                 // Set of unprocessed vertices
-                BitSet right = connectedComponent.Copy();
+                BitSet right = connectedComponent;
 
                 // Set of processed vertices
                 BitSet left = new BitSet(0, n);
@@ -38,8 +38,8 @@ namespace Boolean_Width
 
                 // Place init in the sequence
                 sequence.Add(init);
-                left.Add(init);
-                right.Remove(init);
+                left += init;
+                right -= init;
 
                 // Continue while not all unprocessed vertices are moved
                 while (!right.IsEmpty)
@@ -70,8 +70,8 @@ namespace Boolean_Width
 
                     // Add/remove the next vertex in the appropiate sets 
                     sequence.Add(chosen);
-                    left.Add(chosen);
-                    right.Remove(chosen);
+                    left += chosen;
+                    right -= chosen;
 
                 }
             }

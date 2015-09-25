@@ -67,7 +67,7 @@ namespace Boolean_Width
             Stack<int> stack = new Stack<int>();
 
             // Each vertex of the subgraph will either be explored, or it will be the starting point of a new dfs search
-            BitSet todo = subgraph.Copy();
+            BitSet todo = subgraph;
 
             while (!todo.IsEmpty)
             {
@@ -86,10 +86,10 @@ namespace Boolean_Width
                     // If a neighbor is part of the subgraph it means that we have to push it on the stack to explore it at a later stage for this component
                     if (!component.Contains(v))
                     {
-                        component.Add(v);
+                        component += v;
 
                         // Remove this vertex from the 'todo' list, since it can never be the starting point of a new component
-                        todo.Remove(v);
+                        todo -= v;
 
                         foreach (int w in graph.OpenNeighborhood(v))
                             if (subgraph.Contains(w))

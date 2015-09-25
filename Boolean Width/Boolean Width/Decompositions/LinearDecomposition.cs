@@ -67,7 +67,7 @@ namespace Boolean_Width
                 }
                 neighborhoods = next;
                 max = Math.Max(max, neighborhoods.Count);
-                right.Remove(v);
+                right -= v;
             }
             return max;
         }
@@ -82,8 +82,8 @@ namespace Boolean_Width
 
             foreach (int v in Sequence)
             {
-                left.Add(v);
-                right.Remove(v);
+                left += v;
+                right -= v;
                 // Construct the bipartite graph
                 BipartiteGraph bg = new BipartiteGraph(Graph, left, right);
 

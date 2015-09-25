@@ -29,14 +29,14 @@ namespace Boolean_Width
                 return 1;
 
             int count = 0;
-            BitSet copy = P.Copy();
+            BitSet copy = P;
 
             // Foreach vertex v in P we include it in the IS and compute how many maximal IS will include v by going into recursion.
             foreach (int v in copy)
             {
                 count += Compute(graph, R + v, P - graph.ClosedNeighborhood(v), X - graph.OpenNeighborhood(v));
-                P.Remove(v);
-                X.Add(v);
+                P -= v;
+                X += v;
             }
 
             return count;

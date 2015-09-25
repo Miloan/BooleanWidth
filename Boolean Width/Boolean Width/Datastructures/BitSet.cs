@@ -14,7 +14,7 @@ using Block = System.UInt64;    // Alternate definition
 namespace Boolean_Width
 {
 
-	public class BitSet : IEnumerable
+	public class BitSet : IEnumerable, IEnumerable<int>
     {
         /*************************/
         // Basic attributes
@@ -43,8 +43,7 @@ namespace Boolean_Width
 				return true;
 			}
 		}
-
-        // TODO: Keep this as a value
+        
 		// Returns the number of elements that are actually contained in this BitSet.
         public int Count { get { return count(); } }
 
@@ -79,18 +78,23 @@ namespace Boolean_Width
 			Data = new Block[blocks];
         }
 
-		public BitSet(int lowerBound, int upperBound, params int[] args)
-			: this(lowerBound, upperBound)
-		{
-			AddRange(args);
-		}
+        public BitSet(int lowerBound, int upperBound, IEnumerable<int> args)
+            : this(lowerBound, upperBound)
+        {
+            foreach (int i in args)
+                _add(i);
+        }
+
+        public BitSet(int lowerBound, int upperBound, params int[] args)
+            : this(lowerBound, upperBound, (IEnumerable<int>)args)
+        { }
 
         /*************************/
         // Simple querying and manipulation
         /*************************/
 
         // Adds a single integer by projecting an integer to a unique binary value that will be added to the proper ulong in the correct block.
-        public void Add(int i)
+        private void _add(int i)
         {
             if (!CheckBounds(i))
                 throw new Exception("Element is out of bounds for the BitSet");
@@ -107,23 +111,9 @@ namespace Boolean_Width
 			Data[location] += id;
         }
 
-        // Add a range of integers to the bitset by repeated insertion
-        public void AddRange(BitSet s)
-        {
-            foreach (int i in s)
-                Add(i);
-        }
-
-        // Add a range of integers to the bitset by repeated insertion
-        public void AddRange(IEnumerable<int> elements)
-        {
-            foreach (int i in elements)
-                Add(i);
-        }
-
         // Removes a single integer value by subtracting the unique binary value from the proper block.
 		// Returns true if the removal is successful and false otherwise.
-        public void Remove(int i)
+        private void _remove(int i)
         {
             if (!CheckBounds(i))
                 throw new Exception("Element is out of bounds for the bitset");
@@ -142,13 +132,6 @@ namespace Boolean_Width
 
 			// Update the value in the block accordingly, resulting in a removal operation
 			Data[location] -= id;
-        }
-
-        // Removes a range of integers from the bitset by repeated removal
-        public void RemoveRange(IEnumerable<int> elements)
-        {
-            foreach (int i in elements)
-                Remove(i);
         }
 
         // Returns true if a certain integer value is contained in our set. 
@@ -204,7 +187,7 @@ namespace Boolean_Width
         }
 
         // Returns an exact copy of this bitset
-        public BitSet Copy()
+        private BitSet _copy()
 		{
 			Func<Block, Block> func = x => x;
 			return Map (func);
@@ -255,8 +238,8 @@ namespace Boolean_Width
         // Returns a new bitset that is the union of the given element and this bitset
         public BitSet Union(int i) 
 		{
-            BitSet result = Copy();
-			result.Add (i);
+            BitSet result = _copy();
+			result._add (i);
 			return result;
 		}
 
@@ -270,7 +253,7 @@ namespace Boolean_Width
         // Returns a new bitset that is the intersection of the given element and this bitset
         public BitSet Intersection(int i) 
 		{
-			return Contains(i) ? new BitSet(LowerBound, UpperBound) { i } : new BitSet(LowerBound, UpperBound);
+			return Contains(i) ? new BitSet(LowerBound, UpperBound, new int[] { i }) : new BitSet(LowerBound, UpperBound);
 		}
 
         // Returns a new bitset that is the intersection of the given bitset and this bitset
@@ -309,9 +292,9 @@ namespace Boolean_Width
         // Returns a new bitset that is the difference of this bitset and the given element
         public BitSet Difference(int i) 
 		{
-            BitSet result = Copy();
+            BitSet result = _copy();
             if (Contains(i))
-			    result.Remove (i);
+			    result._remove (i);
 			return result;
 		}
 
@@ -391,7 +374,7 @@ namespace Boolean_Width
         /*************************/
 
         // Returns an IEnumerator to enumerate through the set, using the Brian Kernigan method to locate actual set bits.
-        public IEnumerator GetEnumerator()
+        public IEnumerator<int> GetEnumerator()
         {
             for (int i = 0; i < Data.Length; i++)           // O(|X| / 64)
             {
@@ -404,6 +387,11 @@ namespace Boolean_Width
                     yield return BitPosition(block, i);     // O(1) per element
                 }
             }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         /*************************/
@@ -553,9 +541,5 @@ namespace Boolean_Width
                 result.Add(i);
             return result;
         }
-
     }
-
-   
-
 }

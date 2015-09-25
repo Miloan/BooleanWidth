@@ -41,7 +41,7 @@ namespace Boolean_Width
         // If true, then we might replace the previous representative that is not connected to this neighborhood if the new one is lexicographically smaller
         public void Update(BitSet representative, dNeighborhood neighborhood)
         {
-            Map.Add(representative.Copy(), neighborhood);
+            Map.Add(representative, neighborhood);
         }
 
         // Returns the representative belonging to a given neighborhood

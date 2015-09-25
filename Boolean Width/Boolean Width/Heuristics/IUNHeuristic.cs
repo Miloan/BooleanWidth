@@ -60,7 +60,7 @@ namespace Boolean_Width
         {
             int n = graph.Size;
             List<int> sequence = new List<int>() { init };
-            BitSet left = new BitSet(0, n) { init };
+            BitSet left = new BitSet(0, n, new int[] { init });
             BitSet right = connectedComponent - init;
 
             // Initially we store the empty set and the set with init as the representative, ie N(init) * right
@@ -101,8 +101,8 @@ namespace Boolean_Width
 
                 // Add/remove the next vertex in the appropiate sets 
                 sequence.Add(chosen);
-                left.Add(chosen);
-                right.Remove(chosen);
+                left += chosen;
+                right -= chosen;
                 UN_left = UN_chosen;
                 value = Math.Max(UN_chosen.Count, value);
             }

@@ -22,7 +22,7 @@ namespace Boolean_Width
         {
             BitSet nl = graph.Neighborhood(left) * right;
             return candidateStrategy == CandidateStrategy.All ?
-                right.Copy() : (nl + graph.Neighborhood(nl)) * right;
+                right : (nl + graph.Neighborhood(nl)) * right;
         }
 
         /*************************/

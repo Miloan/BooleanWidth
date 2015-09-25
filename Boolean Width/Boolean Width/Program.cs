@@ -21,6 +21,17 @@ namespace Boolean_Width
             string pattern = namePattern + " {1,-3} {2, -3} {3,6:0.00}% {4,5:0.00} {5,5:0.00} {6,6:0.00}%";
             string noRulesPattern = namePattern + " NO RULES APPLY";
 
+            //foreach (string file in files)
+            //{
+            //    Stopwatch sw = new Stopwatch();
+            //    sw.Start();
+            //    Graph gr = Parser.ParseGraph(file);
+            //    LinearDecomposition ld = IUNHeuristic.Compute(gr, CandidateStrategy.All, InitialVertexStrategy.BFS);
+            //    sw.Stop();
+            //    Console.WriteLine(namePattern + " {1}ms", file, sw.ElapsedMilliseconds);
+            //}
+            //Console.ReadLine();
+
             object LOCK = new object();
             Parallel.ForEach(files, file =>
             {
@@ -36,9 +47,9 @@ namespace Boolean_Width
                 }
                 else
                 {
-                    LinearDecomposition ld = IUNHeuristic.Compute(gr, CandidateStrategy.All, InitialVertexStrategy.All);
+                    LinearDecomposition ld = IUNHeuristic.Compute(gr, CandidateStrategy.All, InitialVertexStrategy.DoubleBFS);
 
-                    LinearDecomposition ld2 = IUNHeuristic.Compute(gr2, CandidateStrategy.All, InitialVertexStrategy.All);
+                    LinearDecomposition ld2 = IUNHeuristic.Compute(gr2, CandidateStrategy.All, InitialVertexStrategy.DoubleBFS);
                     Decomposition dec = Decomposition.FromLinearDecomposition(ld2);
                     Tree tree = dec.Tree;
                     foreach (IReductionRuleCommand command in commands)

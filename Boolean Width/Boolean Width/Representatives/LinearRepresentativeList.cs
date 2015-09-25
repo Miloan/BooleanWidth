@@ -51,12 +51,12 @@ namespace Boolean_Width
                 if (representative.IsLexicographicallySmaller(previousRep))
                 {
                     Map.Remove(previousRep, neighborhood);
-                    Map.Add(representative.Copy(), neighborhood.Copy());
+                    Map.Add(representative, neighborhood);
                 }
             }
             else
             {
-                Map.Add(representative.Copy(), neighborhood.Copy());
+                Map.Add(representative, neighborhood);
             }
         }
 

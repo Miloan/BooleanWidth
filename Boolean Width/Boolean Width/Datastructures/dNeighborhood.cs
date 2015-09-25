@@ -96,8 +96,7 @@ namespace Boolean_Width
         // Builds a neighborhood for a set X from the ground on up, without relying on what has been saved previously in O(n^2) time
         public dNeighborhood(BitSet X, BitSet vector, Graph graph)
         {
-            // O(n) time copy
-            Vector = vector.Copy();
+            Vector = vector;
             Occurrences = new Dictionary<int, int>();
 
             // Loops in O(|Vector|) time over all vertices in the vector

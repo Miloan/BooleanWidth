@@ -55,12 +55,12 @@ namespace Boolean_Width
 
             // first initialize the very first leaf node
             int l = sequence[0];
-            left.Add(l);
-            right.Remove(l);
+            left += l;
+            right -= l;
 
             // Base cases
-            BitSet leaf = new BitSet(0, n) { l };
-            BitSet nleaf = new BitSet(0, n) { graph.OpenNeighborhood(l).First() };
+            BitSet leaf = new BitSet(0, n, new int[] { l });
+            BitSet nleaf = new BitSet(0, n, new int[] { graph.OpenNeighborhood(l).First() });
 
             table[new BitSet(0, n), new BitSet(0, n)] = int.MaxValue;
             table[leaf, new BitSet(0, n)] = 1;
@@ -71,8 +71,8 @@ namespace Boolean_Width
             {
                 int v = sequence[i];
 
-                left.Add(v);
-                right.Remove(v);
+                left += v;
+                right -= v;
 
                 LinearRepresentativeList LRw = cuts[left];
                 LinearRepresentativeList LRw_ = cuts[right];

@@ -35,7 +35,7 @@ namespace Boolean_Width
                 }
                 set
                 {
-                    Tuple<BitSet, BitSet> t = new Tuple<BitSet, BitSet>(inner.Copy(), outer.Copy());
+                    Tuple<BitSet, BitSet> t = new Tuple<BitSet, BitSet>(inner, outer);
                     Data[k][t] = value;
                 }
             }
@@ -55,22 +55,22 @@ namespace Boolean_Width
             LinearRepresentativeTable cuts = new LinearRepresentativeTable(graph, sequence);
 
             int l = sequence[0];
-            BitSet leaf = new BitSet(0, n) { l };
-            BitSet nleaf = new BitSet(0, n) { graph.OpenNeighborhood(l).First() };
+            BitSet leaf = new BitSet(0, n, new int[] { l });
+            BitSet nleaf = new BitSet(0, n, new int[] { graph.OpenNeighborhood(l).First() });
 
             table[leaf, new BitSet(0, n), 1] = 1;
             table[leaf, nleaf, 1] = 1;
             table[new BitSet(0, n), nleaf, 0] = 1;
 
-            left.Add(l);
-            right.Remove(l);
+            left += l;
+            right -= l;
 
             for (int i = 1; i < sequence.Count; i++)
             {
                 int v = sequence[i];
 
-                left.Add(v);
-                right.Remove(v);
+                left += v;
+                right -= v;
 
                 LinearRepresentativeList LRw = cuts[left];
                 LinearRepresentativeList LRw_ = cuts[right];

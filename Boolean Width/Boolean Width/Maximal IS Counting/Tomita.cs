@@ -55,8 +55,8 @@ namespace Boolean_Width
             foreach (int v in (P * graph.ClosedNeighborhood(pivot)))
             {
                 count += Compute(graph, R + v, P - graph.ClosedNeighborhood(v), X - graph.OpenNeighborhood(v));
-                P.Remove(v);
-                X.Add(v);
+                P -=v;
+                X += v;
             }
 
             return count;

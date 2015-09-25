@@ -17,12 +17,10 @@ namespace Boolean_Width
         /*************************/
 
         // Left set of vertices
-        public BitSet Left { get { return left.Copy(); } }
-        private readonly BitSet left;
+        public BitSet Left { get; private set; }
 
         // Right set of vertices
-        public BitSet Right { get { return right.Copy(); } }
-        private readonly BitSet right;
+        public BitSet Right { get; private set; }
 
         /*************************/
         // Constructors
@@ -34,8 +32,8 @@ namespace Boolean_Width
         // Basic constructor 
         private BipartiteGraph(BitSet _left, BitSet _right, int size) : base(size)
         {
-            left = _left.Copy();
-            right = _right.Copy();
+            Left = _left;
+            Right = _right;
         }
 
         // This constructor returns a new bipartite graph by putting all vertices in 'left' on one side, and 'right' on the other side
@@ -46,11 +44,11 @@ namespace Boolean_Width
             Dictionary<int, int> mapping = new Dictionary<int, int>();
             int i = 0;
             
-            foreach (int v in left + right)
+            foreach (int v in Left + Right)
                 mapping[v] = i++;
 
-            foreach (int v in left)
-                foreach (int w in graph.OpenNeighborhood(v) * right)
+            foreach (int v in Left)
+                foreach (int w in graph.OpenNeighborhood(v) * Right)
                     Connect(mapping[v], mapping[w]);
         }
     }

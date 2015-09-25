@@ -48,7 +48,7 @@ namespace Boolean_Width.Preprocessing.ReductionRules
             
             while (queue.Count > 0)
             {
-                BitSet set = queue.Dequeue().Copy();
+                BitSet set = queue.Dequeue();
                 BitSet child;
                 if (tree.LeftChild.TryGetValue(set, out child))
                 {
@@ -60,7 +60,7 @@ namespace Boolean_Width.Preprocessing.ReductionRules
                 }
                 if (parent.IsSubsetOf(set))
                 {
-                    set.Add(node);
+                    set += node;
                 }
 
                 newTree.Insert(set);

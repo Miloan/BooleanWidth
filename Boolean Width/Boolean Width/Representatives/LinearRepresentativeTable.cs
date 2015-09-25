@@ -71,8 +71,8 @@ namespace Boolean_Width
                 int v = sequence[i];
 
                 // Actually move v from one set to the other set
-                left.Add(v);
-                right.Remove(v);
+                left += v;
+                right -= v;
 
                 // We don't want to disturb any pointers so we create new empty datastructures to save everything for the next iteration
                 LinearRepresentativeList nextReps = new LinearRepresentativeList();
@@ -97,7 +97,7 @@ namespace Boolean_Width
                 MaxDimension = Math.Max(MaxDimension, reps.Count);
 
                 // Save the representatives at the current cut in the table
-                Table[left.Copy()] = reps;
+                Table[left] = reps;
             }
         }
     }

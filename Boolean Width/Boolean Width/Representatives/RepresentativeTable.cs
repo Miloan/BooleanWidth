@@ -99,7 +99,7 @@ namespace Boolean_Width
             }
 
             // Save the representatives at the current cut in the table
-            Table[cut.Copy()] = representatives;
+            Table[cut] = representatives;
 
             // Save the maximum size that we encounter during all iterations; this will be the boolean dimension of the graph is d = 1.
             MaxDimension = Math.Max(MaxDimension, representatives.Count);

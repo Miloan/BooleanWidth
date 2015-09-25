@@ -70,8 +70,8 @@ namespace Boolean_Width
         public StrongStableSet(int n)
             : base(n)
         { 
-            Sigma = new BitSet(0, MaxSize) { 0 };
-            Rho = new BitSet(0, MaxSize) { 0, 1 };
+            Sigma = new BitSet(0, MaxSize, new int [] { 0 });
+            Rho = new BitSet(0, MaxSize, new int[] { 0, 1 });
         }
     }
 
@@ -81,8 +81,8 @@ namespace Boolean_Width
         public PerfectCode(int n)
             : base(n)
         {
-            Sigma = new BitSet(0, MaxSize) { 0 };
-            Rho = new BitSet(0, MaxSize) { 1 };
+            Sigma = new BitSet(0, MaxSize, new int[] { 0 });
+            Rho = new BitSet(0, MaxSize, new int[] { 1 });
         }
     }
 
@@ -92,8 +92,8 @@ namespace Boolean_Width
         public TotallyNearlyPerfectSet(int n)
             : base(n)
         {
-            Sigma = new BitSet(0, MaxSize) { 0, 1 };
-            Rho = new BitSet(0, MaxSize) { 0, 1 };
+            Sigma = new BitSet(0, MaxSize, new int[] { 0, 1 });
+            Rho = new BitSet(0, MaxSize, new int[] { 0, 1 });
         }
     }
 
@@ -103,8 +103,8 @@ namespace Boolean_Width
         public WeaklyPerfectDominatingSet(int n)
             : base(n)
         {
-            Sigma = new BitSet(0, MaxSize) { 0, 1 };
-            Rho = new BitSet(0, MaxSize) { 1 };
+            Sigma = new BitSet(0, MaxSize, new int[] { 0, 1 });
+            Rho = new BitSet(0, MaxSize, new int[] { 1 });
         }
     }
 
@@ -114,8 +114,8 @@ namespace Boolean_Width
         public TotalPerfectDominatingSet(int n)
             : base(n)
         {
-            Sigma = new BitSet(0, MaxSize) { 1 };
-            Rho = new BitSet(0, MaxSize) { 1 };
+            Sigma = new BitSet(0, MaxSize, new int[] { 1 });
+            Rho = new BitSet(0, MaxSize, new int[] { 1 });
         }
     }
 
@@ -125,7 +125,7 @@ namespace Boolean_Width
         public InducedMatching(int n)
             : base(n)
         {
-            Sigma = new BitSet(0, MaxSize) { 1 };
+            Sigma = new BitSet(0, MaxSize, new int[] { 1 });
             Rho = new BitSet(0, MaxSize);
             Rho = !Rho;
         }
@@ -137,8 +137,8 @@ namespace Boolean_Width
         public DominatingInducedMatching(int n)
             : base(n)
         {
-            Sigma = new BitSet(0, MaxSize) { 1 };
-            Rho = new BitSet(0, MaxSize) { 0 };
+            Sigma = new BitSet(0, MaxSize, new int[] { 1 });
+            Rho = new BitSet(0, MaxSize, new int[] { 0 });
             Rho = !Rho;
         }
     }
@@ -151,7 +151,7 @@ namespace Boolean_Width
         {
             Sigma = new BitSet(0, MaxSize);
             Sigma = !Sigma;
-            Rho = new BitSet(0, MaxSize) { 1 };
+            Rho = new BitSet(0, MaxSize, new int[] { 1 });
         }
     }
 
@@ -161,7 +161,7 @@ namespace Boolean_Width
         public IndependentSet(int n)
             : base(n)
         {
-            Sigma = new BitSet(0, MaxSize) { 0 };
+            Sigma = new BitSet(0, MaxSize, new int[] { 0 });
             Rho = new BitSet(0, MaxSize);
             Rho = !Rho;
         }
@@ -175,7 +175,7 @@ namespace Boolean_Width
         {
             Sigma = new BitSet(0, MaxSize);
             Sigma = !Sigma;
-            Rho = new BitSet(0, MaxSize) { 0 };
+            Rho = new BitSet(0, MaxSize, new int[] { 0 });
             Rho = !Rho;
         }
     }
@@ -186,8 +186,8 @@ namespace Boolean_Width
         public IndependentDominatingSet(int n)
             : base(n)
         {
-            Sigma = new BitSet(0, MaxSize) { 0 };
-            Rho = new BitSet(0, MaxSize) { 0 };
+            Sigma = new BitSet(0, MaxSize, new int[] { 0 });
+            Rho = new BitSet(0, MaxSize, new int[] { 0 });
             Rho = !Rho;
         }
     }
@@ -198,9 +198,9 @@ namespace Boolean_Width
         public TotalDominatingSet(int n)
             : base(n)
         {
-            Sigma = new BitSet(0, MaxSize) { 0 };
+            Sigma = new BitSet(0, MaxSize, new int[] { 0 });
             Sigma = !Sigma;
-            Rho = new BitSet(0, MaxSize) { 0 };
+            Rho = new BitSet(0, MaxSize, new int[] { 0 });
             Rho = !Rho;
         }
     }

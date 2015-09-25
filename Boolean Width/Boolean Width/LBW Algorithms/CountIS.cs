@@ -36,7 +36,7 @@ namespace Boolean_Width
                 }
                 set
                 {
-                    Data[k][representative.Copy()] = value;
+                    Data[k][representative] = value;
                 }
             }
         }
@@ -60,8 +60,8 @@ namespace Boolean_Width
             {
                 int v = sequence[i];
 
-                left.Add(v);
-                right.Remove(v);
+                left += v;
+                right -= v;
 
                 LinearRepresentativeList LRw = cuts[left];
 

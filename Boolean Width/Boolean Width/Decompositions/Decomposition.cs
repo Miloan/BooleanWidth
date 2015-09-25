@@ -24,8 +24,7 @@ namespace Boolean_Width
         public int Size { get { return Contained.Count; } }
 
         // First node of the tree
-        public BitSet Root { get { return root.Copy(); } }
-        private BitSet root;
+        public BitSet Root { get; private set; }
 
         // List of BitSets, representing the nodes, in the tree
         private List<BitSet> Contained;
@@ -64,7 +63,7 @@ namespace Boolean_Width
             // Check if this is the first node that we add to the collection
             if (Size == 0)
             {
-                root = node;
+                Root = node;
                 Contained.Add(node);
                 return;
             }

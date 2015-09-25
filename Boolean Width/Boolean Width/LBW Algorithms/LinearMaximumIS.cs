@@ -48,7 +48,7 @@ namespace Boolean_Width
                     // The corresponding IS in Left is still valid, but it simply belongs to a smaller neighborhood in Right (hence the removal of v).
                     if (iset.Elements.Contains(v))
                     {
-                        iset.Elements.Remove(v);
+                        iset.Elements -= v;
                         newTable.Update(iset);
                     }
                     // If the neighborhood does not contain v, then there are two cases that have to be handled.
@@ -63,7 +63,7 @@ namespace Boolean_Width
                         // The size of this IS will increase by one (adding v will cause this).
                         // The neighborhood of this IS is the old neighborhood, plus any vertices in Right that are in the neighborhood of v. Vertex v causes the addition of these vertices.
                         // The largest saved IS might change because of this addition of a new erlement.
-                        ISN newIset = new ISN(iset.Elements.Copy(), iset.Size);
+                        ISN newIset = new ISN(iset.Elements, iset.Size);
                         newIset.Size++;
                         newIset.Elements = newIset.Elements + (graph.OpenNeighborhood(v) * right);
                         maxIS = Math.Max(maxIS, newIset.Size);
@@ -72,8 +72,8 @@ namespace Boolean_Width
                 }
 
                 // Safely update all sets that we are working with
-                left.Add(v);
-                right.Remove(v);
+                left += v;
+                right -= v;
                 table = newTable;
 
             }
