@@ -27,7 +27,7 @@ namespace Boolean_Width
 		// The actual data is stored inside this Data
 		// Each index of the Data, called a Block, can store 64 true/false values for distinct integers that we want to save
 		// We can view this collection as a bitarray
-		private Block[] Data;
+		private readonly Block[] Data;
 
 		// Each block has a blocksize of 64. This value should be equal to the size of bits of the undelrying data representative (called Block)
 		protected static readonly int BlockSize = 64; // DO NOT CHANGE, number of bits in each block, which is the number of bits in an ulong currently
@@ -43,9 +43,25 @@ namespace Boolean_Width
 				return true;
 			}
 		}
+
+        private int? _count;
         
 		// Returns the number of elements that are actually contained in this BitSet.
-        public int Count { get { return count(); } }
+        public int Count
+        {
+            get
+            {
+                if (!_count.HasValue)
+                {
+                    _count = count();
+                }
+                else if (_count != count())
+                {
+                    throw new Exception("The counting is not right.");
+                }
+                return _count.Value;
+            }
+        }
 
         // Count the number of bits set to 1 using the Brian Kernigan method
         private int count()
@@ -76,6 +92,8 @@ namespace Boolean_Width
 			int blocks = (((upperBound - 1) - lowerBound) / BlockSize) + 1; 
 
 			Data = new Block[blocks];
+
+            _count = 0;
         }
 
         public BitSet(int lowerBound, int upperBound, IEnumerable<int> args)
@@ -103,6 +121,9 @@ namespace Boolean_Width
             if (Contains(i))
                 return;
 
+            if (_count.HasValue)
+                _count++;
+
             // Obtain the location and bitmask of the given integer
             Block id = Blockify(i);
 			int location = i / BlockSize;
@@ -124,7 +145,10 @@ namespace Boolean_Width
             if (!Contains(i))
                 throw new Exception("Cannot remove element from the set since it is not contained in the bitset");
 
-			// Internal id of the integer, this is the unique bit it is saved under
+            if (_count.HasValue)
+                _count--;
+
+            // Internal id of the integer, this is the unique bit it is saved under
             Block id = Blockify(i);
 
 			// Block that this integer is saved under
@@ -190,15 +214,13 @@ namespace Boolean_Width
         private BitSet _copy()
 		{
 			Func<Block, Block> func = x => x;
-			return Map (func);
+            BitSet set = Map(func);
+            if (_count.HasValue)
+            {
+                set._count = _count;
+            }
+            return set;
 		}
-
-        // Empties this bitset
-        public void Clear()
-        {
-            int blocks = ((UpperBound - LowerBound) / BlockSize) + 1;
-            Data = new Block[blocks];
-        }
 
         /*************************/
         // Mapping
@@ -208,7 +230,10 @@ namespace Boolean_Width
         // In essense this means that we apply a certain function to every bit in the block
         private BitSet Map(Func<Block, Block> func)
         {
-            BitSet result = new BitSet(LowerBound, UpperBound);
+            BitSet result = new BitSet(LowerBound, UpperBound)
+            {
+                _count = null
+            };
 
             for (int i = 0; i < Data.Length; i++)
                 result.Data[i] = func(Data[i]);
@@ -223,7 +248,10 @@ namespace Boolean_Width
             if (!CheckBounds(s))
                 throw new ArgumentException("Cannot perform an operation on two bitsets with different bounds or blocks.");
 
-            BitSet result = new BitSet(LowerBound, UpperBound);
+            BitSet result = new BitSet(LowerBound, UpperBound)
+            {
+                _count = null
+            };
 
             for (int i = 0; i < Data.Length; i++)
                 result.Data[i] = func(Data[i], s.Data[i]);
@@ -284,6 +312,11 @@ namespace Boolean_Width
             {
                 Block u =  (Block)(1UL << range) - 1;
                 inverse.Data[Data.Length - 1] = u & inverse.Data[Data.Length - 1];
+            }
+
+            if (_count.HasValue)
+            {
+                inverse._count = range - _count;
             }
 
             return inverse;
