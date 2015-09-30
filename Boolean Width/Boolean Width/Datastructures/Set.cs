@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Boolean_Width
+namespace BooleanWidth.Datastructures
 {
 
     public class Set<T> : IEnumerable<T>
@@ -19,16 +19,16 @@ namespace Boolean_Width
         /*************************/
 
         // Data contained in the set.
-        private List<T> Data;
+        private List<T> _data;
 
         // The position of element T tells us on which index in the list the object is actually saved.
-        private Dictionary<T, int> Position;
+        private Dictionary<T, int> _position;
 
         // Boolean dictionary to indicate wether or not element T is contained in the set.
-        private Dictionary<T, bool> Contained;
+        private Dictionary<T, bool> _contained;
 
         // Number of elements contained in the set.
-        public int Count { get { return Data.Count; } }
+        public int Count { get { return _data.Count; } }
 
         // Returns true if there are no elements contained in the set.
         public bool IsEmpty { get { return Count == 0; } }
@@ -40,9 +40,9 @@ namespace Boolean_Width
         // Creates a new empty set.
         public Set()
         {
-            Data = new List<T>();
-            Position = new Dictionary<T, int>();
-            Contained = new Dictionary<T, bool>();
+            _data = new List<T>();
+            _position = new Dictionary<T, int>();
+            _contained = new Dictionary<T, bool>();
         }
 
         
@@ -122,7 +122,7 @@ namespace Boolean_Width
         {
             Set<T> difference = new Set<T>();
 
-            foreach (T element in Data)
+            foreach (T element in _data)
                 if (!(data.Contains(element)))
                     difference.Add(element);
 
@@ -133,7 +133,7 @@ namespace Boolean_Width
 		// Perform a certain function on each element of the set.
         public void Map(Func<T, T> func)
 		{
-			foreach (T element in Data)
+			foreach (T element in _data)
 				func (element);
 		}
 
@@ -148,7 +148,7 @@ namespace Boolean_Width
             if (IsEmpty)
                 throw new InvalidOperationException("Set is empty.");
 
-            return Data[0];
+            return _data[0];
         }
 
         
@@ -168,9 +168,9 @@ namespace Boolean_Width
             if (Contains(element))
                 return;
 
-			Position[element] = Count;
-            Contained[element] = true;
-            Data.Add(element);
+			_position[element] = Count;
+            _contained[element] = true;
+            _data.Add(element);
         }
 
         
@@ -196,10 +196,10 @@ namespace Boolean_Width
                 throw new InvalidOperationException("Cannot remove element from the set since it is not contained in the set");
 
 			int last = Count - 1;
-            Position[Data[last]] = Position[element];         // tell the last vertex' position that it has moved to the position of identifier
-            Data[Position[element]] = Data[last];       // the spot of the to be removed vertex v will be replaced by the last vertex of the list
-            Contained[element] = false;
-            Data.RemoveAt(last);                              //O(1) removing
+            _position[_data[last]] = _position[element];         // tell the last vertex' position that it has moved to the position of identifier
+            _data[_position[element]] = _data[last];       // the spot of the to be removed vertex v will be replaced by the last vertex of the list
+            _contained[element] = false;
+            _data.RemoveAt(last);                              //O(1) removing
         }
 
         
@@ -215,7 +215,7 @@ namespace Boolean_Width
         public bool Contains(T element)
         {
             bool b = false;
-            Contained.TryGetValue(element, out b);
+            _contained.TryGetValue(element, out b);
             return b;
         }
 
@@ -223,9 +223,9 @@ namespace Boolean_Width
         // Removes all elements from the set.
         public void Clear()
         {
-            Contained.Clear();
-            Data.Clear();
-            Position.Clear();
+            _contained.Clear();
+            _data.Clear();
+            _position.Clear();
         }
 
         
@@ -243,7 +243,7 @@ namespace Boolean_Width
         // Creates a list of all the elements contained in the set.
         public List<T> ToList()
         {
-            return new List<T>(Data);
+            return new List<T>(_data);
         }
 
         /*************************/
@@ -252,13 +252,13 @@ namespace Boolean_Width
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return Data.GetEnumerator();
+            return _data.GetEnumerator();
         }
 
         // Returns an IEnumerator to enumerate through the set.
         public IEnumerator<T> GetEnumerator()
         {
-            return Data.GetEnumerator();
+            return _data.GetEnumerator();
         }
 
         /*************************/

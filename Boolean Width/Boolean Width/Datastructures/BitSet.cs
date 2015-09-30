@@ -8,10 +8,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Block = System.UInt64;    // Alternate definition
 
-namespace Boolean_Width
+namespace BooleanWidth.Datastructures
 {
 
 	public class BitSet : IEnumerable, IEnumerable<int>
@@ -21,13 +22,13 @@ namespace Boolean_Width
         /*************************/
 
 		// The lower and uppderbound of the range of integers that we will save
-        private readonly int LowerBound;
-        private readonly int UpperBound;
+        private readonly int _lowerBound;
+        private readonly int _upperBound;
 
 		// The actual data is stored inside this Data
 		// Each index of the Data, called a Block, can store 64 true/false values for distinct integers that we want to save
 		// We can view this collection as a bitarray
-		private readonly Block[] Data;
+		private readonly Block[] _data;
 
 		// Each block has a blocksize of 64. This value should be equal to the size of bits of the undelrying data representative (called Block)
 		protected static readonly int BlockSize = 64; // DO NOT CHANGE, number of bits in each block, which is the number of bits in an ulong currently
@@ -35,13 +36,8 @@ namespace Boolean_Width
         // Check if there is any bit set to 1 in the data collection
 		public bool IsEmpty 
 		{ 
-			get 
-			{
-				for (int i = 0; i < Data.Length; i++)
-					if (Data[i] != 0)
-						return false;
-				return true;
-			}
+			get
+			{ return _data.All(t => t == 0); }
 		}
 
         private int? _count;
@@ -67,8 +63,8 @@ namespace Boolean_Width
         private int count()
         {
             int count = 0;
-            for (int i = 0; i < Data.Length; i++)
-                for (Block n = Data[i]; n != 0; count++)
+            for (int i = 0; i < _data.Length; i++)
+                for (Block n = _data[i]; n != 0; count++)
                     n &= n - 1;
             return count;
         }
@@ -85,13 +81,13 @@ namespace Boolean_Width
             if (lowerBound > upperBound)
                 throw new Exception("Lowerbound cannot be strictly higher than upperbound");
 
-            LowerBound = lowerBound;
-            UpperBound = upperBound;
+            _lowerBound = lowerBound;
+            _upperBound = upperBound;
 
 			// For each 64 consecutive integers we need a single block
 			int blocks = (((upperBound - 1) - lowerBound) / BlockSize) + 1; 
 
-			Data = new Block[blocks];
+			_data = new Block[blocks];
 
             _count = 0;
         }
@@ -129,7 +125,7 @@ namespace Boolean_Width
 			int location = i / BlockSize;
 
             // Inserting an item simply means adding the bitmask value to the saves 64-bit block
-			Data[location] += id;
+			_data[location] += id;
         }
 
         // Removes a single integer value by subtracting the unique binary value from the proper block.
@@ -155,7 +151,7 @@ namespace Boolean_Width
             int location = i / BlockSize;
 
 			// Update the value in the block accordingly, resulting in a removal operation
-			Data[location] -= id;
+			_data[location] -= id;
         }
 
         // Returns true if a certain integer value is contained in our set. 
@@ -165,7 +161,7 @@ namespace Boolean_Width
                 return false;
 
             Block id = Blockify(i);
-            return (id & Data[i / BlockSize]) == id;
+            return (id & _data[i / BlockSize]) == id;
         }
 
         // Returns the first element from the bitset
@@ -175,12 +171,12 @@ namespace Boolean_Width
 				throw new Exception("Cannot pick an element from an empty bitset.");
 
             // Simply find the first value that is set to true in this set
-            for (int i = 0; i < Data.Length; i++)
+            for (int i = 0; i < _data.Length; i++)
             {
-                if (Data[i] == 0)
+                if (_data[i] == 0)
                     continue;
 
-                Block n = Data[i];
+                Block n = _data[i];
                 Block rest = n & (n - 1);
                 Block block = n - rest;
                 return BitPosition(block, i);
@@ -195,11 +191,11 @@ namespace Boolean_Width
             if (IsEmpty)
                 throw new Exception("Cannot pick an element from an empty bitset.");
 
-            int position = Data.Length - 1;
-            while (Data[position] == 0)
+            int position = _data.Length - 1;
+            while (_data[position] == 0)
                 position--;
 
-            Block n = Data[position];
+            Block n = _data[position];
             Block block = n;
             while (n != 0)
             {
@@ -230,13 +226,13 @@ namespace Boolean_Width
         // In essense this means that we apply a certain function to every bit in the block
         private BitSet Map(Func<Block, Block> func)
         {
-            BitSet result = new BitSet(LowerBound, UpperBound)
+            BitSet result = new BitSet(_lowerBound, _upperBound)
             {
                 _count = null
             };
 
-            for (int i = 0; i < Data.Length; i++)
-                result.Data[i] = func(Data[i]);
+            for (int i = 0; i < _data.Length; i++)
+                result._data[i] = func(_data[i]);
 
             return result;
         }
@@ -248,13 +244,13 @@ namespace Boolean_Width
             if (!CheckBounds(s))
                 throw new ArgumentException("Cannot perform an operation on two bitsets with different bounds or blocks.");
 
-            BitSet result = new BitSet(LowerBound, UpperBound)
+            BitSet result = new BitSet(_lowerBound, _upperBound)
             {
                 _count = null
             };
 
-            for (int i = 0; i < Data.Length; i++)
-                result.Data[i] = func(Data[i], s.Data[i]);
+            for (int i = 0; i < _data.Length; i++)
+                result._data[i] = func(_data[i], s._data[i]);
 
             return result;
         }
@@ -281,7 +277,7 @@ namespace Boolean_Width
         // Returns a new bitset that is the intersection of the given element and this bitset
         public BitSet Intersection(int i) 
 		{
-			return Contains(i) ? new BitSet(LowerBound, UpperBound, new int[] { i }) : new BitSet(LowerBound, UpperBound);
+			return Contains(i) ? new BitSet(_lowerBound, _upperBound, new int[] { i }) : new BitSet(_lowerBound, _upperBound);
 		}
 
         // Returns a new bitset that is the intersection of the given bitset and this bitset
@@ -305,13 +301,13 @@ namespace Boolean_Width
             // The upperbound will be fixed as follows:
             // Imagine the saved bitset is 000101 with an upperbound of 3 elements, and we already computed the inverse; 111010 using our Map function.
             // We now compute bitset u = 000111, and intersect this with the inverse resulting in 000010, which is exactly the inverse we were looking for.
-            int range = UpperBound - LowerBound;
+            int range = _upperBound - _lowerBound;
             // We only have to make this change if there are not exactly a power of 64 number of elements in our bitset.
             // If range % 64 then the inverse function already computed the correct values
             if (range % 64 != 0)
             {
                 Block u =  (Block)(1UL << range) - 1;
-                inverse.Data[Data.Length - 1] = u & inverse.Data[Data.Length - 1];
+                inverse._data[_data.Length - 1] = u & inverse._data[_data.Length - 1];
             }
 
             if (_count.HasValue)
@@ -391,15 +387,15 @@ namespace Boolean_Width
         // Checks if a certain integer can be contained in this bitset
         private bool CheckBounds(int i)
         {
-            return (i >= LowerBound && i < UpperBound);
+            return (i >= _lowerBound && i < _upperBound);
         }
 
         // Checks if an operation can be performed on this bitset and the given bitset
         private bool CheckBounds(BitSet s)
         {
-		    return (s.LowerBound == LowerBound 
-					&& s.UpperBound == UpperBound
-					&& s.Data.Length == Data.Length);
+		    return (s._lowerBound == _lowerBound 
+					&& s._upperBound == _upperBound
+					&& s._data.Length == _data.Length);
         }
 
         /*************************/
@@ -409,9 +405,9 @@ namespace Boolean_Width
         // Returns an IEnumerator to enumerate through the set, using the Brian Kernigan method to locate actual set bits.
         public IEnumerator<int> GetEnumerator()
         {
-            for (int i = 0; i < Data.Length; i++)           // O(|X| / 64)
+            for (int i = 0; i < _data.Length; i++)           // O(|X| / 64)
             {
-                Block n = Data[i];
+                Block n = _data[i];
                 while (n != 0)
                 {
                     Block remainder = n & (n - 1);          // O(1)
@@ -435,7 +431,7 @@ namespace Boolean_Width
         // Example: Given an integer 5 for the bitset (0,10), it returns 2^5 = 32 (which is 00100000)
         private Block Blockify(int i)
 		{
-            return Identifiers.BitPowers[(i - LowerBound) % BlockSize];
+            return Identifiers.BitPowers[(i - _lowerBound) % BlockSize];
 		}
 
         // BitPosition returns, given a block for an integer and the position of this block, the actual integer that this block represents
@@ -445,7 +441,7 @@ namespace Boolean_Width
             if (!Identifiers.BitPositions.ContainsKey(block))
                 throw new Exception(string.Format("{0} is not a valid power of 2, cannot look up the bit position of this value", block));
 
-            return Identifiers.BitPositions[block] + (blockNumber * 64) + LowerBound;
+            return Identifiers.BitPositions[block] + (blockNumber * 64) + _lowerBound;
         }
 
         // Each integer is projected to a unique power of 2 which represents a binary value.
@@ -490,8 +486,8 @@ namespace Boolean_Width
             if (!CheckBounds(other))
                 return false;
 
-            for (int i = 0; i < Data.Length; i++)
-                if (Data[i] != other.Data[i])
+            for (int i = 0; i < _data.Length; i++)
+                if (_data[i] != other._data[i])
                     return false;
 
             return true;
@@ -503,7 +499,7 @@ namespace Boolean_Width
         {
             int result = 23;
 
-            foreach (Block v in Data)
+            foreach (Block v in _data)
                 result = (result * 37) + (int)(v ^ (v >> 32));
 
             return result;
@@ -521,14 +517,14 @@ namespace Boolean_Width
 
             // If the number of elements is equal then we check which set has a bit set to 1 that the other set doesnt,
             // where this bit is the first bit where this happens
-            for (int i = 0; i < Data.Length; i++)
+            for (int i = 0; i < _data.Length; i++)
             {
-                if (Data[i] == other.Data[i])
+                if (_data[i] == other._data[i])
                     continue;
 
                 // Example: 0111011 vs 0101111
                 // The xor gives us 0010100
-                Block xor = Data[i] ^ other.Data[i];
+                Block xor = _data[i] ^ other._data[i];
                 // rest gives us 0010100 & 0010011 = 001000
                 Block rest = xor & (xor - 1);
                 // bit gives us 0010100 - 001000 = 0000100, which is exactly the first bit set to 1 in one set and 0 in the other

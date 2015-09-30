@@ -4,18 +4,21 @@
 // dNeighborhoods are a generalization of regular neighborhoods
 // The dNeighborhood of a set X of A is defined as a multiset of elements of V\A, where a vertex v of V\A occurs exactly min(d, N(v) * A) times in the multiset 
 /*************************/
+
 using System;
 using System.Collections.Generic;
+using BooleanWidth.Algorithms.BooleanWidth;
+using BooleanWidth.Algorithms.SigmaRho.Problems;
 
-namespace Boolean_Width
+namespace BooleanWidth.Datastructures
 {
-    public class dNeighborhood
+    public class DNeighborhood
     {
         // The vector is the set V\A, which is the same for all dNeighborhoods of a cut (A, V\A)
         public BitSet Vector;
 
         // Occurences is the multiset that saves for each element of V\A how often it occurs in the multiset
-        private Dictionary<int, int> Occurrences;
+        private Dictionary<int, int> _occurrences;
 
         // The dValue of a neighborhood is a problem specific constant that is needed for determining the number of occurences of a vertex in the dNeighborhood
         private static int dValue { get { return DValue.Value; } }
@@ -47,13 +50,13 @@ namespace Boolean_Width
         }
 
         // Basic constructor for a dNeighborhood
-        public dNeighborhood(BitSet vector)
+        public DNeighborhood(BitSet vector)
         {
-            Occurrences = new Dictionary<int, int>();
+            _occurrences = new Dictionary<int, int>();
             Vector = vector;
 
             foreach (int v in Vector)
-                Occurrences[v] = 0;
+                _occurrences[v] = 0;
 
         }
 
@@ -64,47 +67,47 @@ namespace Boolean_Width
         }
 
         // Given a vertex w, we can update the dNeighborhood of a set X to reflect the dNeighborhood of the set X + w in O(n) time
-        public dNeighborhood CopyAndUpdate(Graph graph, int w)
+        public DNeighborhood CopyAndUpdate(Graph graph, int w)
         {
             // initialize an empty dNeighborhood in O(|Vector|) time
-            dNeighborhood nx = new dNeighborhood(Vector);
+            DNeighborhood nx = new DNeighborhood(Vector);
 
             // Copy all values in O(|Vector|) time
             foreach (int v in Vector)
-                nx.Occurrences[v] = Occurrences[v];
+                nx._occurrences[v] = _occurrences[v];
 
             // Foreach vertex in N(w) * Vector they will appear one extra time in the multiset
             // This operation take O(n) time because of the bitset operation
             foreach (int v in graph.OpenNeighborhood(w) * Vector)
-                nx.Occurrences[v] = Math.Min(dValue, nx.Occurrences[v] + 1);
+                nx._occurrences[v] = Math.Min(dValue, nx._occurrences[v] + 1);
 
             return nx;
         }
 
-        public dNeighborhood CopyAndUpdateVector(BitSet vector, bool increment)
+        public DNeighborhood CopyAndUpdateVector(BitSet vector, bool increment)
         {
             // initialize an empty dNeighborhood in O(|Vector|) time
-            dNeighborhood nx = new dNeighborhood(vector);
+            DNeighborhood nx = new DNeighborhood(vector);
 
             BitSet iterateOver = increment ? Vector : vector;
             foreach (int v in iterateOver)
-                nx.Occurrences[v] = Occurrences[v];
+                nx._occurrences[v] = _occurrences[v];
 
             return nx;
         }
 
         // Builds a neighborhood for a set X from the ground on up, without relying on what has been saved previously in O(n^2) time
-        public dNeighborhood(BitSet X, BitSet vector, Graph graph)
+        public DNeighborhood(BitSet x, BitSet vector, Graph graph)
         {
             Vector = vector;
-            Occurrences = new Dictionary<int, int>();
+            _occurrences = new Dictionary<int, int>();
 
             // Loops in O(|Vector|) time over all vertices in the vector
             foreach (int v in Vector)
             {
                 // Bitset operation of O(n) time
-                BitSet nv = graph.OpenNeighborhood(v) * X;
-                Occurrences[v] = Math.Min(nv.Count, dValue);
+                BitSet nv = graph.OpenNeighborhood(v) * x;
+                _occurrences[v] = Math.Min(nv.Count, dValue);
             }
         }
 
@@ -118,19 +121,19 @@ namespace Boolean_Width
             if (obj == null)
                 return false;
 
-            if (!(obj is dNeighborhood))
+            if (!(obj is DNeighborhood))
                 return false;
 
-            dNeighborhood other = obj as dNeighborhood;
+            DNeighborhood other = obj as DNeighborhood;
 
             if (!other.Vector.Equals(Vector))
                 return false;
 
-            foreach (KeyValuePair<int, int> pair in Occurrences)
+            foreach (KeyValuePair<int, int> pair in _occurrences)
             {
-                if (!other.Occurrences.ContainsKey(pair.Key))
+                if (!other._occurrences.ContainsKey(pair.Key))
                     return false;
-                if (other.Occurrences[pair.Key] != Occurrences[pair.Key])
+                if (other._occurrences[pair.Key] != _occurrences[pair.Key])
                     return false;
             }
 
@@ -142,7 +145,7 @@ namespace Boolean_Width
         public override int GetHashCode()
         {
             int result = Vector.GetHashCode();
-            foreach (KeyValuePair<int, int> pair in Occurrences)
+            foreach (KeyValuePair<int, int> pair in _occurrences)
                 result = (result * 37) + pair.Key * 31 + pair.Value * 701;
             return result;
         }

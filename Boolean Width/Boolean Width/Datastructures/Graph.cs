@@ -4,11 +4,10 @@
 // A graph is a collection of vertices together with an adjacencymatrix that keeps track of the neighbors of all vertices. 
 /*************************/
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Boolean_Width
+namespace BooleanWidth.Datastructures
 {
  
     public class Graph
@@ -21,7 +20,7 @@ namespace Boolean_Width
         public BitSet Vertices { get; private set; }
 
         // Adjacencymatrix for quick access to all neighbor of a certain vertex
-        private BitSet[] AdjacencyMatrix;
+        private BitSet[] _adjacencyMatrix;
 
         // Number of vertices in the graph
         public readonly int Size;
@@ -33,7 +32,7 @@ namespace Boolean_Width
         // Constructor for a new graph of size n
         public Graph(int n)
         {
-            AdjacencyMatrix = new BitSet[n];
+            _adjacencyMatrix = new BitSet[n];
 
             Size = n;
 
@@ -41,7 +40,7 @@ namespace Boolean_Width
             for (int i = 0; i < n; i++)
             {
                 verticesList.Add(i);
-                AdjacencyMatrix[i] = new BitSet(0, n);
+                _adjacencyMatrix[i] = new BitSet(0, n);
             }
             Vertices = new BitSet(0, n, verticesList);
         }
@@ -50,20 +49,20 @@ namespace Boolean_Width
         {
             Vertices = graph.Vertices;
 
-            AdjacencyMatrix = new BitSet[graph.Size];
+            _adjacencyMatrix = new BitSet[graph.Size];
 
             Size = graph.Size;
 
             for (int i = 0; i < Size; i++)
             {
-                AdjacencyMatrix[i] = graph.AdjacencyMatrix[i];
+                _adjacencyMatrix[i] = graph._adjacencyMatrix[i];
             }
         }
 
         public void RemoveVertex (int i)
         {
             Vertices -= i;
-            foreach (int j in AdjacencyMatrix[i])
+            foreach (int j in _adjacencyMatrix[i])
             {
                 Disconnect(i, j);
             }
@@ -72,15 +71,15 @@ namespace Boolean_Width
         // Removes an edge between vertex i and j by removing them from each others neighborhoods
         public void Disconnect(int i, int j)
         {
-            AdjacencyMatrix[i] -= j;
-            AdjacencyMatrix[j] -= i;
+            _adjacencyMatrix[i] -= j;
+            _adjacencyMatrix[j] -= i;
         }
 
         // Creates an edge between vertex i and j by adding them to each others neighborhoods
         public void Connect(int i, int j)
         {
-            AdjacencyMatrix[i] += j;
-            AdjacencyMatrix[j] += i;
+            _adjacencyMatrix[i] += j;
+            _adjacencyMatrix[j] += i;
         }
 
         /*************************/
@@ -90,13 +89,13 @@ namespace Boolean_Width
         // Returns the open neighborhood of a vertex i, ie. N(i)
         public BitSet OpenNeighborhood(int i)
         {
-            return AdjacencyMatrix[i];
+            return _adjacencyMatrix[i];
         }
 
         // Returns the closed neighborhood of vertex i, ie. N[i]
         public BitSet ClosedNeighborhood(int i)
         {
-            return AdjacencyMatrix[i] + i;
+            return _adjacencyMatrix[i] + i;
         }
 
         // Returns the entire open neighborhood of a set of vertices by appending all neighborhoods to one set
@@ -113,7 +112,7 @@ namespace Boolean_Width
         // Returns the degree of a certain vertex with identifier i
         public int Degree(int i)
         {
-            return AdjacencyMatrix[i].Count;
+            return _adjacencyMatrix[i].Count;
         }
 
         /*************************/

@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using System.IO;
-using Boolean_Width.Preprocessing.ReductionRules;
-using Boolean_Width.Preprocessing;
+using System.Linq;
+using System.Threading.Tasks;
+using BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics;
+using BooleanWidth.Algorithms.BooleanWidth.Preprocessing;
+using BooleanWidth.Algorithms.BooleanWidth.Preprocessing.ReductionRules;
+using BooleanWidth.Datastructures;
+using BooleanWidth.Datastructures.Decompositions;
+using BooleanWidth.IO;
 
-namespace Boolean_Width
+namespace BooleanWidth
 {
     class Program
     {
@@ -47,9 +48,9 @@ namespace Boolean_Width
                 }
                 else
                 {
-                    LinearDecomposition ld = IUNHeuristic.Compute(gr, CandidateStrategy.All, InitialVertexStrategy.DoubleBFS);
+                    LinearDecomposition ld = IunHeuristic.Compute(gr, CandidateStrategy.All, InitialVertexStrategy.DoubleBfs);
 
-                    LinearDecomposition ld2 = IUNHeuristic.Compute(gr2, CandidateStrategy.All, InitialVertexStrategy.DoubleBFS);
+                    LinearDecomposition ld2 = IunHeuristic.Compute(gr2, CandidateStrategy.All, InitialVertexStrategy.DoubleBfs);
                     Decomposition dec = Decomposition.FromLinearDecomposition(ld2);
                     Tree tree = dec.Tree;
                     foreach (IReductionRuleCommand command in commands)
@@ -64,38 +65,5 @@ namespace Boolean_Width
             Console.WriteLine("Done");
             Console.ReadKey();
         }
-    }
-
-    class ConsoleLine
-    {
-        static object LOCK = new object();
-
-        readonly int line;
-        public ConsoleLine ()
-        {
-            lock (LOCK)
-            {
-                line = Console.CursorTop;
-                Console.WriteLine();
-            }
-        }
-
-        public void Write(string text)
-        {
-            lock (LOCK)
-            {
-                int temp = Console.CursorTop;
-                Console.CursorTop = line;
-                Console.CursorLeft = 0;
-                Console.WriteLine(text.Length > Console.WindowWidth ? text.Substring(0, Console.WindowWidth) : text);
-                Console.CursorTop = temp;
-            }
-        }
-
-        public void Write(string text, params object[] arg)
-        {
-            Write(String.Format(text, arg));
-        }
-
     }
 }

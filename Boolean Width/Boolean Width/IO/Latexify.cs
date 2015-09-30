@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+using System.Text;
 
-namespace Boolean_Width
+namespace BooleanWidth.IO
 {
     public static class Latexify
     {

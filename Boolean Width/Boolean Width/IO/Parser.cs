@@ -4,11 +4,12 @@
 // Class with parsers to parse files of the DGF fileformat, and parsers to retreive saved linear decompositions.
 /*************************/
 
-using System;
 using System.Collections.Generic;
 using System.IO;
+using BooleanWidth.Datastructures;
+using BooleanWidth.Datastructures.Decompositions;
 
-namespace Boolean_Width
+namespace BooleanWidth.IO
 {
 	public static class Parser
 	{

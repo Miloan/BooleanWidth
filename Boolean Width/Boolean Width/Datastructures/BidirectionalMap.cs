@@ -9,7 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Boolean_Width
+namespace BooleanWidth.Datastructures
 {
     public class BidirectionalMap<T1, T2> : IEnumerable
     {
@@ -18,16 +18,16 @@ namespace Boolean_Width
         /*************************/
 
         // All elements in a forward fashion
-        private Dictionary<T1, T2> Forward;
+        private Dictionary<T1, T2> _forward;
 
         // All elements in a backward fashion
-        private Dictionary<T2, T1> Backward;
+        private Dictionary<T2, T1> _backward;
 
         // We use this indexer so that everything can be accessed in reverse order
         public Indexer Reverse { get; private set; }
 
         // Number of elements in the map
-        public int Count { get { return Forward.Count; } }
+        public int Count { get { return _forward.Count; } }
 
         /*************************/
         // Constructor
@@ -36,8 +36,8 @@ namespace Boolean_Width
         // Basic constructor
         public BidirectionalMap() 
         {
-            Forward = new Dictionary<T1, T2>();
-            Backward = new Dictionary<T2, T1>();
+            _forward = new Dictionary<T1, T2>();
+            _backward = new Dictionary<T2, T1>();
 
             Reverse = new Indexer(this);
         }
@@ -49,7 +49,7 @@ namespace Boolean_Width
         // Default get and set operations
         public T2 this[T1 index]
         {
-            get { return Forward[index]; }
+            get { return _forward[index]; }
             set
             {
                 Add(index, value);
@@ -63,23 +63,23 @@ namespace Boolean_Width
         // Returns true if the given key is present in the map
         public bool ContainsKey(T1 key)
         {
-            return Forward.ContainsKey(key);
+            return _forward.ContainsKey(key);
         }
 
         // Returns true if the given value is present in the map
         public bool ContainsValue(T2 value)
         {
-            return Backward.ContainsKey(value);
+            return _backward.ContainsKey(value);
         }
 
         // Adds a keyvalue-pair to the map, same as Map[key] = value
         public void Add(T1 key, T2 value)
         {
-            if (Forward.ContainsKey(key) ^ Backward.ContainsKey(value))
+            if (_forward.ContainsKey(key) ^ _backward.ContainsKey(value))
                 throw new Exception("Key/value is already contained; insertion is only allowed if key and value are not yet contained, or both are contained");
 
-            Forward[key] = value;
-            Backward[value] = key;
+            _forward[key] = value;
+            _backward[value] = key;
         }
 
         // Removes a keyvalue-pair from the map
@@ -88,15 +88,15 @@ namespace Boolean_Width
             if (!(ContainsKey(key) && ContainsValue(value)))
                 throw new Exception("Key or value is not contained in bidirectional map");
 
-            Forward.Remove(key);
-            Backward.Remove(value);
+            _forward.Remove(key);
+            _backward.Remove(value);
         }
 
         // Clears the map
         public void Clear()
         {
-            Forward.Clear();
-            Backward.Clear();
+            _forward.Clear();
+            _backward.Clear();
         }
 
         /*************************/
@@ -105,7 +105,7 @@ namespace Boolean_Width
 
         public IEnumerator GetEnumerator()
         {
-            return Forward.Keys.GetEnumerator();
+            return _forward.Keys.GetEnumerator();
         }
 
         /*************************/
@@ -114,20 +114,20 @@ namespace Boolean_Width
         public class Indexer : IEnumerable
         {
             // All actual data is saved in the parent class
-            private BidirectionalMap<T1, T2> Parent;
+            private BidirectionalMap<T1, T2> _parent;
 
-            public int Count { get { return Parent.Backward.Count; } }
+            public int Count { get { return _parent._backward.Count; } }
             
             // Basic constructor
             public Indexer(BidirectionalMap<T1, T2> parent)
             {
-                Parent = parent;
+                _parent = parent;
             }
 
             // Reverse indexer
             public T1 this[T2 index]
             {
-                get { return Parent.Backward[index]; }
+                get { return _parent._backward[index]; }
                 set
                 {
                     Add(index, value);
@@ -137,17 +137,17 @@ namespace Boolean_Width
             // Reverse adding of data, same as Map.Reverse[value] = key
             public void Add(T2 value, T1 key)
             {
-                if (Parent.Forward.ContainsKey(key) ^ Parent.Backward.ContainsKey(value))
+                if (_parent._forward.ContainsKey(key) ^ _parent._backward.ContainsKey(value))
                     throw new Exception("Key/value is already contained; insertion is only allowed if key and value are not yet contained, or both are contained");
 
-                Parent.Forward[key] = value;
-                Parent.Backward[value] = key;
+                _parent._forward[key] = value;
+                _parent._backward[value] = key;
             }
 
             // Basic enumerator
             public IEnumerator GetEnumerator()
             {
-                return Parent.Backward.Keys.GetEnumerator();
+                return _parent._backward.Keys.GetEnumerator();
             }
         }
 

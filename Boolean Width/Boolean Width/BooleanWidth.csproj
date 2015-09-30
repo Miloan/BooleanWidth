@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FACCB7E8-6EE2-43A6-9A42-F65AECBA19C5}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BooleanWidth</RootNamespace>
+    <AssemblyName>Boolean Width</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Algorithms\SigmaRho\Problems\DominatingInducedMatching.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\DominatingSet.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\IndependentDominatingSet.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\IndependentSet.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\InducedMatching.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\IOptimal.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\Maximum.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\Minimum.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\PerfectCode.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\PerfectDominatingSet.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\StrongStableSet.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\TotalDominatingSet.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\TotallyNearlyPerfectSet.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\TotalPerfectDominatingSet.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\WeaklyPerfectDominatingSet.cs" />
+    <Compile Include="ConsoleLine.cs" />
+    <Compile Include="Datastructures\BidirectionalMap.cs" />
+    <Compile Include="Datastructures\BipartiteGraph.cs" />
+    <Compile Include="Datastructures\BitSet.cs" />
+    <Compile Include="Datastructures\dNeighborhood.cs" />
+    <Compile Include="Datastructures\Graph.cs" />
+    <Compile Include="Datastructures\Set.cs" />
+    <Compile Include="Algorithms\SigmaRho\Problems\SigmaRhoInstance.cs" />
+    <Compile Include="Datastructures\Decompositions\Decomposition.cs" />
+    <Compile Include="Datastructures\Decompositions\IDecomposition.cs" />
+    <Compile Include="Datastructures\Decompositions\LinearDecomposition.cs" />
+    <Compile Include="Algorithms\SigmaRho\GenericSolver.cs" />
+    <Compile Include="Datastructures\Tree.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\Heuristics\CandidateStrategy.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\Heuristics\Heuristics.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\Heuristics\InitialVertexStrategy.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\Heuristics\IUNHeuristic.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\Heuristics\SadiaHeuristics.cs" />
+    <Compile Include="Algorithms\BooleanWidth\ExactDecomposer.cs" />
+    <Compile Include="Algorithms\DepthFirstSearch.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\Heuristics\ScoreFunction.cs" />
+    <Compile Include="IO\Latexify.cs" />
+    <Compile Include="IO\Parser.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\CountDS.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\CountIS.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\LinearMaximumIS.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Linear\LinearMinimumDS.cs" />
+    <Compile Include="Algorithms\Maximal IS Counting\BronKerbosch.cs" />
+    <Compile Include="Algorithms\Maximal IS Counting\CC_MIS.cs" />
+    <Compile Include="Algorithms\Maximal IS Counting\Tomita.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Preprocessing\GraphPreprocessor.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Preprocessing\ReductionRules\IReductionRule.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Preprocessing\ReductionRules\IReductionRuleCommand.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Preprocessing\ReductionRules\IsletReductionRule.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Preprocessing\ReductionRules\PendantReductionRule.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Preprocessing\ReductionRules\ReductionRuleHelper.cs" />
+    <Compile Include="Algorithms\BooleanWidth\Preprocessing\ReductionRules\TwinReductionRule.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Datastructures\Representatives\RepresentativeList.cs" />
+    <Compile Include="Datastructures\Representatives\LinearRepresentativeList.cs" />
+    <Compile Include="Datastructures\Representatives\RepresentativeTable.cs" />
+    <Compile Include="Datastructures\Representatives\LinearRepresentativeTable.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
