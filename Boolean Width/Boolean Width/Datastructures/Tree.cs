@@ -113,22 +113,12 @@ namespace BooleanWidth.Datastructures
             return _contained.GetEnumerator();
         }
 
-        public void ToFile(string filename)
+        public void Write(TextWriter writer)
         {
-            StreamWriter sw = new StreamWriter(filename);
-            StringBuilder sb = new StringBuilder();
             foreach (BitSet set in this)
             {
-                sb.Clear();
-                foreach (int i in set)
-                {
-                    sb.Append(i + 1);
-                    sb.Append(" ");
-                }
-                sb.Remove(sb.Length - 1, 1);
-                sw.WriteLine(sb.ToString());
+                writer.WriteLine(string.Join(" ", set));
             }
-            sw.Close();
         }
     }
 }

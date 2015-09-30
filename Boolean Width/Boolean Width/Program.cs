@@ -38,7 +38,11 @@ namespace BooleanWidth
             {
                 ConsoleLine line = new ConsoleLine();
                 line.Write(namePattern, file);
-                Graph gr = Parser.ParseGraph(file);
+                Graph gr;
+                using (TextReader reader = new StreamReader(File.Open(file, FileMode.Open)))
+                {
+                    gr = Graph.Read(reader);
+                }
 
                 Graph gr2 = gr.Clone();
                 IReductionRuleCommand[] commands = GraphPreprocessor.ApplyRules(gr2, new IReductionRule[] { new TwinReductionRule(), new PendantReductionRule(), new IsletReductionRule() }).Reverse().ToArray();

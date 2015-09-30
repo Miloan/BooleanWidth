@@ -5,6 +5,7 @@
 /*************************/
 
 using System;
+using System.IO;
 using System.Linq;
 using BooleanWidth.Algorithms.BooleanWidth;
 using BooleanWidth.Algorithms.SigmaRho.Problems;
@@ -66,10 +67,33 @@ namespace BooleanWidth.Datastructures.Decompositions
         /*************************/
 
         // Outputs the decomposition in BDC file format
-        public void ToFile(string filename)
+        public void ToFile(TextWriter writer)
         {
-            Tree.ToFile(filename);
+            Tree.Write(writer);
         }
+
+        // Parses a decomposition given the filename of the decomposition and the graph files.
+        public static Decomposition Read(TextReader reader, Graph graph)
+        {
+            string line;
+            Tree tree = new Tree();
+
+            // Each line is simply an integer, which is the sequence of the linear decomposition
+            while ((line = reader.ReadLine()) != null)
+            {
+                // Skip comments
+                if (line.StartsWith("c ")) continue;
+
+                string[] s = line.Trim().Split(' ');
+                BitSet node = new BitSet(0, graph.Size);
+                foreach (string vertex in s)
+                    node += int.Parse(vertex) - 1; // -1 because internally we work with [0,...,n)
+                tree.Insert(node);
+            }
+
+            return new Decomposition(graph, tree);
+        }
+        
         public static Decomposition FromLinearDecomposition(LinearDecomposition ld)
         {
             Tree tree = new Tree();

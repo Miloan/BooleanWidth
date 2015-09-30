@@ -120,6 +120,26 @@ namespace BooleanWidth.Datastructures.Decompositions
             sw.Close();
         }
 
+        // Parses a linear decomposition given the filename of the decomposition and the graph files.
+        public static LinearDecomposition Read(TextReader reader, Graph graph)
+        {
+            string line;
+            List<int> sequence = new List<int>();
+
+            // Each line is simply an integer, which is the sequence of the linear decomposition
+            while ((line = reader.ReadLine()) != null)
+            {
+                // Skip comments
+                if (line.StartsWith("c ")) continue;
+
+                int i;
+                int.TryParse(line, out i);
+                sequence.Add(i - 1); // -1 because we work internally with [0...n) instead of (0...n]
+            }
+
+            return new LinearDecomposition(graph, sequence);
+        }
+
         // Creates a regular boolean decomposition out of a linear boolean decomposition
         public void ToBdcFile(string filename)
         {
