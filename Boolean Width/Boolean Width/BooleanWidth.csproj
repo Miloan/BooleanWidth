@@ -92,8 +92,6 @@
     <Compile Include="Algorithms\BooleanWidth\ExactDecomposer.cs" />
     <Compile Include="Algorithms\DepthFirstSearch.cs" />
     <Compile Include="Algorithms\BooleanWidth\Linear\Heuristics\ScoreFunction.cs" />
-    <Compile Include="IO\Latexify.cs" />
-    <Compile Include="IO\Parser.cs" />
     <Compile Include="Algorithms\BooleanWidth\Linear\CountDS.cs" />
     <Compile Include="Algorithms\BooleanWidth\Linear\CountIS.cs" />
     <Compile Include="Algorithms\BooleanWidth\Linear\LinearMaximumIS.cs" />

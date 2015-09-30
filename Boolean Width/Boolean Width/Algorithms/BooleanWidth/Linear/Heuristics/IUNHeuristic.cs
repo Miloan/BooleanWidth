@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BooleanWidth.Datastructures;
 using BooleanWidth.Datastructures.Decompositions;
 
@@ -27,6 +28,15 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics
                         {
                             List<int> minList = null;
                             int minValue = int.MaxValue;
+                            //Parallel.ForEach(connectedComponent, vertex =>
+                            //{
+                            //    List<int> temp = ComputeSequence(graph, connectedComponent, candidateStrategy, vertex, out tempValue);
+                            //    if (tempValue < minValue)
+                            //    {
+                            //        minValue = tempValue;
+                            //        minList = temp;
+                            //    }
+                            //});
                             foreach (int vertex in connectedComponent)
                             {
                                 List<int> temp = ComputeSequence(graph, connectedComponent, candidateStrategy, vertex, out tempValue);

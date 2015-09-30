@@ -68,10 +68,10 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics
             // BFS working queue
             Queue<int> queue = new Queue<int>();
             // Vertices that have already been visited
-            Set<int> visited = new Set<int>();
+            BitSet visited = new BitSet(graph.Vertices.First(), graph.Vertices.Last() + 1);
 
             // Initial vertex is given as input
-            visited.Add(init);
+            visited += init;
             queue.Enqueue(init);
             int current = init;
 
@@ -85,7 +85,7 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics
                     // Enqueue all neighbors that have not been processed yet
                     if (!visited.Contains(w))
                     {
-                        visited.Add(w);
+                        visited += w;
                         queue.Enqueue(w);
                     }
                 }
