@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace BooleanWidth
 {
@@ -23,7 +24,7 @@ namespace BooleanWidth
                 int temp = Console.CursorTop;
                 Console.CursorTop = _line;
                 Console.CursorLeft = 0;
-                Console.WriteLine(text.Length > Console.WindowWidth ? text.Substring(0, Console.WindowWidth) : text);
+                Console.Write(text.Length > Console.WindowWidth ? text.Substring(0, Console.WindowWidth) : text.PadRight(Console.WindowWidth));
                 Console.CursorTop = temp;
             }
         }

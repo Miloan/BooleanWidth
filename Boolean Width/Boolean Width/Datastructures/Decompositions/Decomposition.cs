@@ -67,12 +67,12 @@ namespace BooleanWidth.Datastructures.Decompositions
         /*************************/
 
         // Outputs the decomposition in BDC file format
-        public void ToFile(TextWriter writer)
+        public void Write(TextWriter writer)
         {
             Tree.Write(writer);
         }
 
-        // Parses a decomposition given the filename of the decomposition and the graph files.
+        // Parses a decomposition given the filename of the decomposition and the graph.
         public static Decomposition Read(TextReader reader, Graph graph)
         {
             string line;

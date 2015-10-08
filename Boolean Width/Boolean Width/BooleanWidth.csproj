@@ -72,7 +72,9 @@
     <Compile Include="Algorithms\SigmaRho\Problems\TotalPerfectDominatingSet.cs" />
     <Compile Include="Algorithms\SigmaRho\Problems\WeaklyPerfectDominatingSet.cs" />
     <Compile Include="ConsoleLine.cs" />
+    <Compile Include="ConsoleTable.cs" />
     <Compile Include="Datastructures\BidirectionalMap.cs" />
+    <Compile Include="Datastructures\BinTree.cs" />
     <Compile Include="Datastructures\BipartiteGraph.cs" />
     <Compile Include="Datastructures\BitSet.cs" />
     <Compile Include="Datastructures\dNeighborhood.cs" />

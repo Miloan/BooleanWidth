@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace BooleanWidth.Datastructures
@@ -115,9 +116,82 @@ namespace BooleanWidth.Datastructures
 
         public void Write(TextWriter writer)
         {
-            foreach (BitSet set in this)
+            foreach (BitSet set in this._contained)
             {
-                writer.WriteLine(string.Join(" ", set));
+                writer.WriteLine(string.Join(" ", set.Select(i => i + 1)));
+            }
+        }
+
+
+        public void WriteLatex(TextWriter writer, bool simple = true)
+        {
+            writer.WriteLine("\\documentclass[tikz,border=5]{standalone}");
+            writer.WriteLine("\\usetikzlibrary{graphs,graphdrawing,arrows.meta}");
+            writer.WriteLine("\\usegdlibrary{trees}");
+            writer.WriteLine("\\begin{document}");
+            writer.WriteLine("\\begin{tikzpicture}[>=Stealth]");
+            writer.WriteLine("\\graph[binary tree layout]{");
+            if (simple)
+            {
+                _recursionSimple(writer, Root);
+            }
+            else
+            {
+                _recursion(writer, Root);
+            }
+            writer.WriteLine("};");
+            writer.WriteLine("\\end{tikzpicture}");
+            writer.WriteLine("\\end{document}");
+        }
+
+        private void _recursion(TextWriter writer, BitSet node)
+        {
+            IList<string> str = new List<string>();
+            int start = int.MaxValue;
+            int prev = int.MaxValue;
+            foreach (int item in node)
+            {
+                if (item - prev != 1)
+                {
+                    start = item;
+                    str.Add(item.ToString());
+                }
+                else
+                {
+                    str[str.Count - 1] = start + "-" + item;
+                }
+                prev = item;
+            }
+            writer.Write("\"\\{" + String.Join(", ", str) + "\\}\"");
+            BitSet child;
+            if (LeftChild.TryGetValue(node, out child))
+            {
+                writer.WriteLine("-> {");
+                _recursion(writer, child);
+                writer.WriteLine(",");
+                _recursion(writer, RightChild[node]);
+                writer.WriteLine("}");
+            }
+            else
+            {
+                writer.WriteLine();
+            }
+        }
+
+        private void _recursionSimple(TextWriter writer, BitSet node)
+        {
+            if (node.Count == 1)
+            {
+                writer.WriteLine(node.First());
+            }
+            else
+            {
+                writer.WriteLine("\"\"");
+                writer.WriteLine("-> {");
+                _recursionSimple(writer, LeftChild[node]);
+                writer.WriteLine(",");
+                _recursionSimple(writer, RightChild[node]);
+                writer.WriteLine("}");
             }
         }
     }

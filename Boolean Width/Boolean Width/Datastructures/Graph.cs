@@ -128,8 +128,7 @@ namespace BooleanWidth.Datastructures
                     if (v < w)  // avoids printing edges twice
                         writer.WriteLine("e {0} {1}", v + 1, w + 1);
         }
-
-
+        
         // Parses a file of DGF format, from which we can build a graph
         public static Graph Read(TextReader reader)
         {

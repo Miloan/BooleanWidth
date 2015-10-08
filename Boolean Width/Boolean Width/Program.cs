@@ -1,73 +1,279 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 using BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics;
 using BooleanWidth.Algorithms.BooleanWidth.Preprocessing;
 using BooleanWidth.Algorithms.BooleanWidth.Preprocessing.ReductionRules;
 using BooleanWidth.Datastructures;
 using BooleanWidth.Datastructures.Decompositions;
-using BooleanWidth.IO;
 
 namespace BooleanWidth
 {
-    class Program
+    static class Program
     {
-
+        
         static void Main(string[] args)
         {
+            ReadDecompositions();
+            
 
-            string[] files = Directory.GetFiles("Graphs/sadiagraphs").ToArray();
-            string namePattern = "{0,-" + files.Max(s => s.Length) + "}";
-            string pattern = namePattern + " {1,-3} {2, -3} {3,6:0.00}% {4,5:0.00} {5,5:0.00} {6,6:0.00}%";
-            string noRulesPattern = namePattern + " NO RULES APPLY";
-
-            //foreach (string file in files)
-            //{
-            //    Stopwatch sw = new Stopwatch();
-            //    sw.Start();
-            //    Graph gr = Parser.ParseGraph(file);
-            //    LinearDecomposition ld = IUNHeuristic.Compute(gr, CandidateStrategy.All, InitialVertexStrategy.BFS);
-            //    sw.Stop();
-            //    Console.WriteLine(namePattern + " {1}ms", file, sw.ElapsedMilliseconds);
-            //}
-            //Console.ReadLine();
-
-            object LOCK = new object();
-            Parallel.ForEach(files, file =>
-            {
-                ConsoleLine line = new ConsoleLine();
-                line.Write(namePattern, file);
-                Graph gr;
-                using (TextReader reader = new StreamReader(File.Open(file, FileMode.Open)))
-                {
-                    gr = Graph.Read(reader);
-                }
-
-                Graph gr2 = gr.Clone();
-                IReductionRuleCommand[] commands = GraphPreprocessor.ApplyRules(gr2, new IReductionRule[] { new TwinReductionRule(), new PendantReductionRule(), new IsletReductionRule() }).Reverse().ToArray();
-                if (commands.Length == 0)
-                {
-                    line.Write(noRulesPattern, file);
-                }
-                else
-                {
-                    LinearDecomposition ld = IunHeuristic.Compute(gr, CandidateStrategy.All, InitialVertexStrategy.DoubleBfs);
-
-                    LinearDecomposition ld2 = IunHeuristic.Compute(gr2, CandidateStrategy.All, InitialVertexStrategy.DoubleBfs);
-                    Decomposition dec = Decomposition.FromLinearDecomposition(ld2);
-                    Tree tree = dec.Tree;
-                    foreach (IReductionRuleCommand command in commands)
-                    {
-                        tree = command.Expand(tree);
-                    }
-                    dec = new Decomposition(gr, tree);
-                    line.Write(pattern, file, gr.Vertices.Count, gr2.Vertices.Count, gr2.Vertices.Count * 100.0 / gr.Vertices.Count, ld.BooleanWidth, ld2.BooleanWidth, (ld2.BooleanWidth - ld.BooleanWidth) / ld.BooleanWidth * 100);
-                }
-            });
-
+            Console.WriteLine();
             Console.WriteLine("Done");
             Console.ReadKey();
+        }
+
+        public static void ReadDecompositions()
+        {
+
+            string[] files = Directory.GetFiles("Decompositions/All", "*.bdc", SearchOption.AllDirectories).ToArray();
+
+            ConsoleTable<ExpandoObject> table = new ConsoleTable<ExpandoObject>();
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("Name", "{0}", files.Max(s => s.Length) - "Decompositions\\".Length, s => s.GetOrNull("Name")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("#V", "{0}", 4, s => s.GetOrNull("Vertices")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("BW", "{0:0.00}", 5, s => s.GetOrNull("BooleanWidth")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("BW2", "{0:0.00}", 5, s => s.GetOrNull("BooleanWidth2")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("Size", "{0}", 5, s => s.GetOrNull("Size")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("Size right", "{0}", 10, s => s.GetOrNull("RightSize")));
+
+            IDictionary<string, Graph> graphs = new Dictionary<string, Graph>();
+            dynamic[] expandos = new dynamic[files.Length];
+            for(int i = 0; i < files.Length; i++)
+            {
+                dynamic obj = new ExpandoObject();
+                table.Rows.Add(obj);
+                obj.FileName = files[i];
+                obj.Name = files[i].Substring("Decompositions\\".Length);
+                expandos[i] = obj;
+                string graph = Path.GetFileNameWithoutExtension(files[i]);
+                if (!graphs.ContainsKey(graph))
+                {
+                    using (
+                        StreamReader reader =
+                            new StreamReader(
+                                File.Open("Graphs/sadiagraphs/" + Path.GetFileNameWithoutExtension(files[i]) + ".dgf",
+                                    FileMode.Open)))
+                    {
+                        graphs[graph] = Graph.Read(reader);
+                    }
+                }
+            }
+
+            Parallel.ForEach(expandos, dyn =>
+            //foreach (dynamic dyn in expandos)
+            {
+                using (StreamReader decompReader = new StreamReader(File.Open(dyn.FileName, FileMode.Open)))
+                {
+                    Graph graph = graphs[Path.GetFileNameWithoutExtension(dyn.FileName)];
+                    dyn.Vertices = graph.Vertices.Count;
+                    Decomposition decomposition = Decomposition.Read(decompReader, graph);
+                    
+                    //dyn.BooleanWidth = decomposition.BooleanWidth;
+
+                    BinTree tree = BinTree.FromTree(decomposition.Tree);
+                    tree.Tilt();
+                    decomposition = new Decomposition(graph, tree.ToTree());
+
+                    //dyn.BooleanWidth = decomposition.BooleanWidth;
+                    //SaveDecomposition(decomposition, "Tilted", Path.GetFileNameWithoutExtension(dyn.FileName));
+
+                    {
+                        int size = 0;
+                        BitSet parent = decomposition.Tree.Root;
+                        do
+                        {
+                            size = Math.Max(size, decomposition.Tree.LeftChild[parent].Count);
+                        } while (decomposition.Tree.RightChild.TryGetValue(parent, out parent) && parent.Count > 1);
+                        dyn.RightSize = size;
+                    }
+                    {
+                        int size = 0;
+                        BitSet parent = decomposition.Tree.Root;
+                        do
+                        {
+                            size += decomposition.Tree.LeftChild[parent].Count - 1;
+                        } while (decomposition.Tree.RightChild.TryGetValue(parent, out parent) && parent.Count > 1);
+                        dyn.Size = size;
+                    }
+
+                    //{
+                    //    List<int> linDecList = new List<int>();
+                    //    BitSet parent = decomposition.Tree.Root;
+                    //    do
+                    //    {
+                    //        BitSet set = decomposition.Tree.LeftChild[parent];
+                    //        if (set.Count == 1)
+                    //        {
+                    //            linDecList.Add(set.First());
+                    //        }
+                    //        else
+                    //        {
+                    //            Graph gr = graph.Clone();
+                    //            foreach (int v in graph.Vertices - set)
+                    //            {
+                    //                gr.RemoveVertex(v);
+                    //            }
+                    //            LinearDecomposition ld = IunHeuristic.Compute(gr, CandidateStrategy.All,
+                    //                InitialVertexStrategy.DoubleBfs);
+                    //            linDecList.AddRange(ld.Sequence);
+                    //        }
+                    //    } while (decomposition.Tree.RightChild.TryGetValue(parent, out parent) && parent.Count > 1);
+                    //    LinearDecomposition linDecomposition = new LinearDecomposition(graph, linDecList);
+                    //    dyn.BooleanWidth2 = linDecomposition.BooleanWidth;
+                    //}
+
+                    //SaveDecomposition(decomposition, "NewDec", Path.GetFileNameWithoutExtension(dyn.FileName));
+                    //dyn.BooleanWidth = decomposition.BooleanWidth;
+                }
+            });
+        }
+
+        private static void Generate()
+        {
+
+            Console.WindowWidth = 100;
+            string[] files = Directory.GetFiles("Graphs/sadiagraphs").Where(s => s.Contains("zeroin")).ToArray();
+
+            ConsoleTable<ExpandoObject> table = new ConsoleTable<ExpandoObject>();
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("File", "{0}", files.Max(s => s.Length), s => s.GetOrNull("FileName")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("#V", "{0}", 4, s => s.GetOrNull("Vertices")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("BW", "{0:0.00}", 5, s => s.GetOrNull("BooleanWidth")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("TIME", "{0}", 20, s => s.GetOrNull("Time")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("Written", "{0}", 20, s => s.GetOrNull("Written")));
+            dynamic[] statistics = files.Select(s => { dynamic dyn = new ExpandoObject();
+                                                         dyn.FileName = s;
+                                                         return dyn;
+            }).ToArray();
+            foreach (ExpandoObject s in statistics)
+            {
+                table.Rows.Add(s);
+            }
+            Parallel.ForEach(statistics, s =>
+            {
+                SemiLinear(s);
+            });
+        }
+        
+        private static void SemiLinear(dynamic expando)
+        {
+            Graph gr;
+            using (TextReader reader = new StreamReader(File.Open(expando.FileName, FileMode.Open)))
+            {
+                gr = Graph.Read(reader);
+            }
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            Graph gr2 = gr.Clone();
+            IReductionRuleCommand[] commands = GraphPreprocessor.ApplyRules(gr2, new TwinReductionRule(), new PendantReductionRule(), new IsletReductionRule()).Reverse().ToArray();
+            expando.Vertices = gr2.Vertices.Count;
+            if (commands.Length != 0)
+            {
+                LinearDecomposition ld = IunHeuristic.Compute(gr2, CandidateStrategy.All, InitialVertexStrategy.All);
+                Decomposition dec = Decomposition.FromLinearDecomposition(ld);
+                Tree tree = dec.Tree;
+                foreach (IReductionRuleCommand command in commands)
+                {
+                    tree = command.Expand(tree);
+                }
+                dec = new Decomposition(gr, tree);
+
+                sw.Stop();
+                expando.Time = sw.Elapsed;
+                //statistic.BooleanWidth = dec.BooleanWidth;
+
+                SaveDecomposition(dec, "Decompositions", Path.GetFileNameWithoutExtension(expando.FileName));
+                expando.Written = "Done";
+            }
+            else
+            {
+                expando.BooleanWidth = "-";
+                expando.Time = "SKIP";
+            }
+        }
+
+        private static void Linear(dynamic expando)
+        {
+            Graph gr;
+            using (TextReader reader = new StreamReader(File.Open(expando.FileName, FileMode.Open)))
+            {
+                gr = Graph.Read(reader);
+            }
+            expando.Vertices = gr.Vertices.Count;
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            LinearDecomposition ld = IunHeuristic.Compute(gr, CandidateStrategy.All, InitialVertexStrategy.All);
+            sw.Stop();
+            expando.Time = sw.Elapsed;
+            expando.BooleanWidth = ld.BooleanWidth;
+        }
+
+        private static void SaveDecomposition(Decomposition decomposition, string folder, string fileName)
+        {
+
+            Directory.CreateDirectory(folder);
+            using (
+                TextWriter writer =
+                    new StreamWriter(
+                        File.Open(
+                            folder + "/" + fileName + ".bdc",
+                            FileMode.Create)))
+            {
+                decomposition.Write(writer);
+                writer.Flush();
+            }
+            Directory.CreateDirectory(folder + "/LaTeX/");
+            using (
+                TextWriter writer =
+                    new StreamWriter(
+                        File.Open(
+                            folder + "/LaTeX/" + fileName + ".tex",
+                            FileMode.Create)))
+            {
+                decomposition.Tree.WriteLatex(writer);
+                writer.Flush();
+            }
+            // Start the child process.
+            Process p = new Process();
+            // Redirect the output stream of the child process.
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.FileName = "lualatex";
+            p.StartInfo.Arguments = "\"" + folder + "/LaTeX/" + fileName + ".tex" + "\"";
+            p.Start();
+            // Do not wait for the child process to exit before
+            // reading to the end of its redirected stream.
+            // p.WaitForExit();
+            // Read the output stream first and then wait.
+            string output = p.StandardOutput.ReadToEnd();
+            p.WaitForExit();
+
+            if (File.Exists(folder + "/LaTeX/" + fileName + ".pdf"))
+            {
+                File.Delete(folder + "/LaTeX/" + fileName + ".pdf");
+            }
+            File.Move(fileName + ".pdf", folder + "/LaTeX/" + fileName + ".pdf");
+            
+            File.Delete(fileName + ".log");
+            File.Delete(fileName + ".aux");
+        }
+        
+        public static object GetOrNull(this ExpandoObject expando, string key)
+        {
+            IDictionary<string, object> dict = expando;
+            Object obj;
+            if (dict.TryGetValue(key, out obj))
+            {
+                return obj;
+            }
+            return null;
         }
     }
 }

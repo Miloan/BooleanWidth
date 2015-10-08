@@ -28,7 +28,21 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics
                         {
                             List<int> minList = null;
                             int minValue = int.MaxValue;
-                            //Parallel.ForEach(connectedComponent, vertex =>
+                            object _lock = new object();
+                            Parallel.ForEach(connectedComponent, vertex =>
+                            {
+                                int concTempValue;
+                                List<int> temp = ComputeSequence(graph, connectedComponent, candidateStrategy, vertex, out concTempValue);
+                                lock (_lock)
+                                {
+                                    if (concTempValue < minValue)
+                                    {
+                                        minValue = concTempValue;
+                                        minList = temp;
+                                    }
+                                }
+                            });
+                            //foreach (int vertex in connectedComponent)
                             //{
                             //    List<int> temp = ComputeSequence(graph, connectedComponent, candidateStrategy, vertex, out tempValue);
                             //    if (tempValue < minValue)
@@ -36,16 +50,7 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics
                             //        minValue = tempValue;
                             //        minList = temp;
                             //    }
-                            //});
-                            foreach (int vertex in connectedComponent)
-                            {
-                                List<int> temp = ComputeSequence(graph, connectedComponent, candidateStrategy, vertex, out tempValue);
-                                if (tempValue < minValue)
-                                {
-                                    minValue = tempValue;
-                                    minList = temp;
-                                }
-                            }
+                            //}
                             sequence.AddRange(minList);
                         }
                         break;

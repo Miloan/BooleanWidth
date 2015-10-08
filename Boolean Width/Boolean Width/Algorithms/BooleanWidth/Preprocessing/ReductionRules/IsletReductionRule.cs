@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using BooleanWidth.Datastructures;
 
 namespace BooleanWidth.Algorithms.BooleanWidth.Preprocessing.ReductionRules
@@ -28,7 +29,10 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Preprocessing.ReductionRules
 
             public Tree Expand(Tree tree)
             {
-                return ReductionRuleHelper.Expand(tree, ReductionRuleHelper.BreadthFirstSearch(tree), this.Vertex);
+                BitSet parent = tree.Root;
+                while (parent.Count > 1 && tree.RightChild.TryGetValue(parent, out parent))
+                { }
+                return ReductionRuleHelper.Expand(tree, parent, this.Vertex);
             }
         }
     }
