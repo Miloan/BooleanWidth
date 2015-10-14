@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\BooleanWidth\SemiLinearDecomposer.cs" />
     <Compile Include="Algorithms\SigmaRho\Problems\DominatingInducedMatching.cs" />
     <Compile Include="Algorithms\SigmaRho\Problems\DominatingSet.cs" />
     <Compile Include="Algorithms\SigmaRho\Problems\IndependentDominatingSet.cs" />

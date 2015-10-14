@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using BooleanWidth.Algorithms.BooleanWidth;
 using BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics;
 using BooleanWidth.Algorithms.BooleanWidth.Preprocessing;
 using BooleanWidth.Algorithms.BooleanWidth.Preprocessing.ReductionRules;
@@ -33,7 +34,7 @@ namespace BooleanWidth
         public static void ReadDecompositions()
         {
 
-            string[] files = Directory.GetFiles("Decompositions/All", "*.bdc", SearchOption.AllDirectories).ToArray();
+            string[] files = Directory.GetFiles("Decompositions/DoubleBFS", "*.bdc", SearchOption.AllDirectories).ToArray();
 
             ConsoleTable<ExpandoObject> table = new ConsoleTable<ExpandoObject>();
             table.Columns.Add(new ConsoleColumn<ExpandoObject>("Name", "{0}", files.Max(s => s.Length) - "Decompositions\\".Length, s => s.GetOrNull("Name")));
@@ -68,8 +69,8 @@ namespace BooleanWidth
                 }
             }
 
-            //Parallel.ForEach(expandos, dyn =>
-            foreach (dynamic dyn in expandos)
+            Parallel.ForEach(expandos, dyn =>
+            //foreach (dynamic dyn in expandos)
             {
                 using (StreamReader decompReader = new StreamReader(File.Open(dyn.FileName, FileMode.Open)))
                 {
@@ -105,44 +106,24 @@ namespace BooleanWidth
                     }
 
                     {
-                        Stopwatch sw = new Stopwatch(); 
+                        Stopwatch sw = new Stopwatch();
                         sw.Start();
-                        BooleanChain chain = BooleanChain.DepthFirstSearch(tree.Left.Item, decomposition.MaxNeighborhoodSize, int.MaxValue, BooleanChain.FromGraph(graph, tree.Left.Item).ToArray());
-                        
-                        BinTree node = tree;
-                        while (node.Right != null)
-                        {
-                            node = node.Right;
-                            if (node.Left == null)
-                            {
-                                chain = new BooleanChain(chain, node.Item.First());
-                            }
-                            else if (node.Left.Item.Count == 1)
-                            {
-                                chain = new BooleanChain(chain, node.Left.Item.First());
-                            }
-                            else
-                            {
-                                chain = BooleanChain.DepthFirstSearch(node.Left.Item, decomposition.MaxNeighborhoodSize, int.MaxValue, chain);
-                                if (chain == null)
-                                {
-                                    dyn.DFS = "Fail";
-                                    break;
-                                }
-                            }
-                        }
+                        LinearDecomposition ld = SemiLinearDecomposer.ConvertDecomposition(decomposition);
+                        sw.Stop();
+                        dyn.DFS = ld.BooleanWidth;
                         dyn.DFSTime = sw.Elapsed;
-                        if (chain != null)
-                        {
-                            LinearDecomposition ld = (LinearDecomposition)chain;
-                            dyn.DFS = ld.BooleanWidth;
-                        }
+                    }
+
+                    {
+                        LinearDecomposition ld = IunHeuristic.Compute(graph, CandidateStrategy.All, InitialVertexStrategy.DoubleBfs);
+                        dyn.LinearBooleanWidth = ld.BooleanWidth;
+                        SaveDecomposition(ld, Path.GetDirectoryName(dyn.FileName), Path.GetFileNameWithoutExtension(dyn.FileName));
                     }
 
                     //SaveDecomposition(decomposition, "NewDec", Path.GetFileNameWithoutExtension(dyn.FileName));
                     //dyn.BooleanWidth = decomposition.BooleanWidth;
                 }
-            }//);
+            });
         }
 
         private static void Generate()
@@ -224,6 +205,22 @@ namespace BooleanWidth
             sw.Stop();
             expando.Time = sw.Elapsed;
             expando.BooleanWidth = ld.BooleanWidth;
+        }
+
+        private static void SaveDecomposition(LinearDecomposition decomposition, string folder, string fileName)
+        {
+
+            Directory.CreateDirectory(folder);
+            using (
+                TextWriter writer =
+                    new StreamWriter(
+                        File.Open(
+                            folder + "/" + fileName + ".lbdc",
+                            FileMode.Create)))
+            {
+                decomposition.Write(writer);
+                writer.Flush();
+            }
         }
 
         private static void SaveDecomposition(Decomposition decomposition, string folder, string fileName)

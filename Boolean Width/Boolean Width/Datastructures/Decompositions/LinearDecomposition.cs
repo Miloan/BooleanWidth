@@ -111,13 +111,11 @@ namespace BooleanWidth.Datastructures.Decompositions
         // File IO
         /*************************/
 
-        public void ToFile(string filename)
+        public void Write(TextWriter writer)
         {
-            StreamWriter sw = new StreamWriter(filename);
-            sw.WriteLine("c max|UN(A)| = {0}, boolw = {1}", MaxNeighborhoodSize, BooleanWidth);
+            writer.WriteLine("c max|UN(A)| = {0}, boolw = {1}", MaxNeighborhoodSize, BooleanWidth);
             foreach (int v in Sequence)
-                sw.WriteLine(v + 1);    // The +1 is needed because internally we work with the range [0...n) instead of (0...n]
-            sw.Close();
+                writer.WriteLine(v + 1);    // The +1 is needed because internally we work with the range [0...n) instead of (0...n]
         }
 
         // Parses a linear decomposition given the filename of the decomposition and the graph files.
@@ -138,41 +136,6 @@ namespace BooleanWidth.Datastructures.Decompositions
             }
 
             return new LinearDecomposition(graph, sequence);
-        }
-
-        // Creates a regular boolean decomposition out of a linear boolean decomposition
-        public void ToBdcFile(string filename)
-        {
-            StreamWriter sw = new StreamWriter(filename);
-            sw.WriteLine("c max|UN(A)| = {0}, boolw = {1}", MaxNeighborhoodSize, BooleanWidth);
-
-            StringBuilder sb = new StringBuilder();
-
-            // All vertices that have to be printed, put together as one long string, ie. "1 2 3 4 5 6 7"
-            foreach (int v in Sequence)
-            {
-                sb.Append(v + 1);
-                sb.Append(" ");
-            }
-
-            int skip = 0;
-            for (int i = 0; i < Sequence.Count; i++)
-            {
-                // Parent set of the vertex we are splitting off
-                sw.WriteLine(sb.ToString(skip, sb.Length - skip - 1));
-
-                // Ávoids printing the last vertex twice
-                if (i == Sequence.Count - 1) 
-                    break;
-
-                // Actual vertex that we print
-                string vertex = (Sequence[i] + 1).ToString();
-                sw.WriteLine(vertex);
-
-                // +1 because of " " in each entry of the stringbuilder
-                skip += vertex.Length + 1;                  
-            }
-            sw.Close();
         }
     }
 }
