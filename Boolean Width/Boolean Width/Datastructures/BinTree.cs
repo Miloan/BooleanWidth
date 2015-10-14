@@ -38,49 +38,53 @@ namespace BooleanWidth.Datastructures
             return Math.Max(leftTilt, rightTilt) + 1;
         }
 
-        public static BinTree FromTree(Tree tree)
+        public static explicit operator BinTree(Tree tree)
         {
-            
-            return fromTree(tree, tree.Root);
-        }
-        private static BinTree fromTree(Tree tree, BitSet subRoot)
-        {
-            BinTree binTree = new BinTree(subRoot);
-            BitSet child;
-            if (tree.LeftChild.TryGetValue(subRoot, out child))
+            BinTree binTree = new BinTree(tree.Root);
+            Queue<BinTree> queue = new Queue<BinTree>();
+            queue.Enqueue(binTree);
+
+            while (queue.Count > 0)
             {
-                binTree.Left = fromTree(tree, child);
-            }
-            if (tree.RightChild.TryGetValue(subRoot, out child))
-            {
-                binTree.Right = fromTree(tree, child);
+                BinTree node = queue.Dequeue();
+                BitSet bitSet;
+                if (tree.LeftChild.TryGetValue(node.Item, out bitSet))
+                {
+                    node.Left = new BinTree(bitSet);
+                    queue.Enqueue(node.Left);
+                }
+                if (tree.RightChild.TryGetValue(node.Item, out bitSet))
+                {
+                    node.Right = new BinTree(bitSet);
+                    queue.Enqueue(node.Right);
+                }
             }
             return binTree;
         }
-
-        public Tree ToTree()
+        
+        public static explicit operator Tree(BinTree binTree)
         {
             Tree tree = new Tree();
 
             Queue<BinTree> queue = new Queue<BinTree>();
-            queue.Enqueue(this);
+            queue.Enqueue(binTree);
 
             while (queue.Count > 0)
             {
-                BinTree binTree = queue.Dequeue();
-                tree.Insert(binTree.Item);
-                if (binTree.Left != null)
+                BinTree node = queue.Dequeue();
+                tree.Insert(node.Item);
+                if (node.Left != null)
                 {
-                    queue.Enqueue(binTree.Left);
+                    queue.Enqueue(node.Left);
                 }
-                if (binTree.Right != null)
+                if (node.Right != null)
                 {
-                    queue.Enqueue(binTree.Right);
+                    queue.Enqueue(node.Right);
                 }
             }
             return tree;
         }
-        
+
         public void WriteLatex(TextWriter writer, bool simple = true)
         {
             writer.WriteLine("\\documentclass[tikz,border=5]{standalone}");

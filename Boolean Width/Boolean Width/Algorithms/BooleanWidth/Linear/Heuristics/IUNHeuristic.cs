@@ -18,52 +18,41 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics
         {
             List<BitSet> connectedComponents = DepthFirstSearch.ConnectedComponents(graph);
             List<int> sequence = new List<int>();
-
-            int tempValue;
+            
             foreach (BitSet connectedComponent in connectedComponents)
             {
                 switch (initialVertexStrategy)
                 {
                     case InitialVertexStrategy.All:
                         {
-                            List<int> minList = null;
-                            int minValue = int.MaxValue;
+                            UNSequence minSequence = new UNSequence() { Value = int.MaxValue};
+                            int max = int.MaxValue;
                             object _lock = new object();
                             Parallel.ForEach(connectedComponent, vertex =>
                             {
-                                int concTempValue;
-                                List<int> temp = ComputeSequence(graph, connectedComponent, candidateStrategy, vertex, out concTempValue);
+                                UNSequence tempSequence = ComputeSequence(graph, connectedComponent, candidateStrategy, vertex, ref max);
                                 lock (_lock)
                                 {
-                                    if (concTempValue < minValue)
+                                    if (tempSequence.Value < minSequence.Value)
                                     {
-                                        minValue = concTempValue;
-                                        minList = temp;
+                                        max = minSequence.Value;
+                                        minSequence = tempSequence;
                                     }
                                 }
                             });
-                            //foreach (int vertex in connectedComponent)
-                            //{
-                            //    List<int> temp = ComputeSequence(graph, connectedComponent, candidateStrategy, vertex, out tempValue);
-                            //    if (tempValue < minValue)
-                            //    {
-                            //        minValue = tempValue;
-                            //        minList = temp;
-                            //    }
-                            //}
-                            sequence.AddRange(minList);
+                            sequence.AddRange(minSequence.Sequence);
                         }
                         break;
                     case InitialVertexStrategy.Bfs:
                         {
                             int init = Heuristics.Bfs(graph, connectedComponent.Last());
-                            sequence.AddRange(ComputeSequence(graph, connectedComponent, candidateStrategy, init, out tempValue));
+                            sequence.AddRange(ComputeSequence(graph, connectedComponent, candidateStrategy, init));
                         }
                         break;
                     case InitialVertexStrategy.DoubleBfs:
                         {
                             int init = Heuristics.Bfs(graph, Heuristics.Bfs(graph, connectedComponent.Last()));
-                            sequence.AddRange(ComputeSequence(graph, connectedComponent, candidateStrategy, init, out tempValue));
+                            sequence.AddRange(ComputeSequence(graph, connectedComponent, candidateStrategy, init));
                         }
                         break;
                 }
@@ -71,7 +60,14 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics
             return new LinearDecomposition(graph, sequence);
         }
 
-        private static List<int> ComputeSequence(Datastructures.Graph graph, BitSet connectedComponent, CandidateStrategy candidateStrategy, int init, out int value)
+        private static List<int> ComputeSequence(Datastructures.Graph graph, BitSet connectedComponent,
+            CandidateStrategy candidateStrategy, int init)
+        {
+            int max = int.MaxValue;
+            return ComputeSequence(graph, connectedComponent, candidateStrategy, init, ref max).Sequence;
+        }
+
+        private static UNSequence ComputeSequence(Datastructures.Graph graph, BitSet connectedComponent, CandidateStrategy candidateStrategy, int init, ref int max)
         {
             int n = graph.Size;
             List<int> sequence = new List<int>() { init };
@@ -80,7 +76,7 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics
 
             // Initially we store the empty set and the set with init as the representative, ie N(init) * right
             Set<BitSet> unLeft = new Set<BitSet>() { new BitSet(0, n), graph.OpenNeighborhood(init) * right };
-            value = int.MinValue;
+            int value = int.MinValue;
             while (!right.IsEmpty)
             {
                 Set<BitSet> unChosen = new Set<BitSet>();
@@ -120,9 +116,19 @@ namespace BooleanWidth.Algorithms.BooleanWidth.Linear.Heuristics
                 right -= chosen;
                 unLeft = unChosen;
                 value = Math.Max(unChosen.Count, value);
+                if (value > max)
+                {
+                    return new UNSequence() { Sequence = null, Value = int.MaxValue };
+                }
             }
 
-            return sequence;
+            return new UNSequence() { Sequence = sequence, Value = value };
+        }
+
+        private class UNSequence
+        {
+            public List<int> Sequence { get; set; }
+            public int Value { get; set; }
         }
 
 

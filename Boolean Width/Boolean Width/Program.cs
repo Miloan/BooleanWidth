@@ -21,6 +21,7 @@ namespace BooleanWidth
         
         static void Main(string[] args)
         {
+            Console.WindowWidth = 120;
             ReadDecompositions();
             
 
@@ -38,9 +39,11 @@ namespace BooleanWidth
             table.Columns.Add(new ConsoleColumn<ExpandoObject>("Name", "{0}", files.Max(s => s.Length) - "Decompositions\\".Length, s => s.GetOrNull("Name")));
             table.Columns.Add(new ConsoleColumn<ExpandoObject>("#V", "{0}", 4, s => s.GetOrNull("Vertices")));
             table.Columns.Add(new ConsoleColumn<ExpandoObject>("BW", "{0:0.00}", 5, s => s.GetOrNull("BooleanWidth")));
-            table.Columns.Add(new ConsoleColumn<ExpandoObject>("BW2", "{0:0.00}", 5, s => s.GetOrNull("BooleanWidth2")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("LBW", "{0:0.00}", 5, s => s.GetOrNull("LinearBooleanWidth")));
             table.Columns.Add(new ConsoleColumn<ExpandoObject>("Size", "{0}", 5, s => s.GetOrNull("Size")));
             table.Columns.Add(new ConsoleColumn<ExpandoObject>("Size right", "{0}", 10, s => s.GetOrNull("RightSize")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("DFS", "{0:0.00}", 5, s => s.GetOrNull("DFS")));
+            table.Columns.Add(new ConsoleColumn<ExpandoObject>("DFS Time", "{0}", 20, s => s.GetOrNull("DFSTime")));
 
             IDictionary<string, Graph> graphs = new Dictionary<string, Graph>();
             dynamic[] expandos = new dynamic[files.Length];
@@ -65,8 +68,8 @@ namespace BooleanWidth
                 }
             }
 
-            Parallel.ForEach(expandos, dyn =>
-            //foreach (dynamic dyn in expandos)
+            //Parallel.ForEach(expandos, dyn =>
+            foreach (dynamic dyn in expandos)
             {
                 using (StreamReader decompReader = new StreamReader(File.Open(dyn.FileName, FileMode.Open)))
                 {
@@ -74,15 +77,13 @@ namespace BooleanWidth
                     dyn.Vertices = graph.Vertices.Count;
                     Decomposition decomposition = Decomposition.Read(decompReader, graph);
                     
-                    //dyn.BooleanWidth = decomposition.BooleanWidth;
 
-                    BinTree tree = BinTree.FromTree(decomposition.Tree);
+                    BinTree tree = (BinTree)decomposition.Tree;
                     tree.Tilt();
-                    decomposition = new Decomposition(graph, tree.ToTree());
+                    decomposition = new Decomposition(graph, (Tree)tree);
 
-                    //dyn.BooleanWidth = decomposition.BooleanWidth;
-                    //SaveDecomposition(decomposition, "Tilted", Path.GetFileNameWithoutExtension(dyn.FileName));
-
+                    dyn.BooleanWidth = decomposition.BooleanWidth;
+                    
                     {
                         int size = 0;
                         BitSet parent = decomposition.Tree.Root;
@@ -92,6 +93,7 @@ namespace BooleanWidth
                         } while (decomposition.Tree.RightChild.TryGetValue(parent, out parent) && parent.Count > 1);
                         dyn.RightSize = size;
                     }
+
                     {
                         int size = 0;
                         BitSet parent = decomposition.Tree.Root;
@@ -102,43 +104,52 @@ namespace BooleanWidth
                         dyn.Size = size;
                     }
 
-                    //{
-                    //    List<int> linDecList = new List<int>();
-                    //    BitSet parent = decomposition.Tree.Root;
-                    //    do
-                    //    {
-                    //        BitSet set = decomposition.Tree.LeftChild[parent];
-                    //        if (set.Count == 1)
-                    //        {
-                    //            linDecList.Add(set.First());
-                    //        }
-                    //        else
-                    //        {
-                    //            Graph gr = graph.Clone();
-                    //            foreach (int v in graph.Vertices - set)
-                    //            {
-                    //                gr.RemoveVertex(v);
-                    //            }
-                    //            LinearDecomposition ld = IunHeuristic.Compute(gr, CandidateStrategy.All,
-                    //                InitialVertexStrategy.DoubleBfs);
-                    //            linDecList.AddRange(ld.Sequence);
-                    //        }
-                    //    } while (decomposition.Tree.RightChild.TryGetValue(parent, out parent) && parent.Count > 1);
-                    //    LinearDecomposition linDecomposition = new LinearDecomposition(graph, linDecList);
-                    //    dyn.BooleanWidth2 = linDecomposition.BooleanWidth;
-                    //}
+                    {
+                        Stopwatch sw = new Stopwatch(); 
+                        sw.Start();
+                        BooleanChain chain = BooleanChain.DepthFirstSearch(tree.Left.Item, decomposition.MaxNeighborhoodSize, int.MaxValue, BooleanChain.FromGraph(graph, tree.Left.Item).ToArray());
+                        
+                        BinTree node = tree;
+                        while (node.Right != null)
+                        {
+                            node = node.Right;
+                            if (node.Left == null)
+                            {
+                                chain = new BooleanChain(chain, node.Item.First());
+                            }
+                            else if (node.Left.Item.Count == 1)
+                            {
+                                chain = new BooleanChain(chain, node.Left.Item.First());
+                            }
+                            else
+                            {
+                                chain = BooleanChain.DepthFirstSearch(node.Left.Item, decomposition.MaxNeighborhoodSize, int.MaxValue, chain);
+                                if (chain == null)
+                                {
+                                    dyn.DFS = "Fail";
+                                    break;
+                                }
+                            }
+                        }
+                        dyn.DFSTime = sw.Elapsed;
+                        if (chain != null)
+                        {
+                            LinearDecomposition ld = (LinearDecomposition)chain;
+                            dyn.DFS = ld.BooleanWidth;
+                        }
+                    }
 
                     //SaveDecomposition(decomposition, "NewDec", Path.GetFileNameWithoutExtension(dyn.FileName));
                     //dyn.BooleanWidth = decomposition.BooleanWidth;
                 }
-            });
+            }//);
         }
 
         private static void Generate()
         {
 
             Console.WindowWidth = 100;
-            string[] files = Directory.GetFiles("Graphs/sadiagraphs").Where(s => s.Contains("zeroin")).ToArray();
+            string[] files = Directory.GetFiles("Graphs/sadiagraphs").ToArray();
 
             ConsoleTable<ExpandoObject> table = new ConsoleTable<ExpandoObject>();
             table.Columns.Add(new ConsoleColumn<ExpandoObject>("File", "{0}", files.Max(s => s.Length), s => s.GetOrNull("FileName")));
@@ -186,9 +197,9 @@ namespace BooleanWidth
 
                 sw.Stop();
                 expando.Time = sw.Elapsed;
-                //statistic.BooleanWidth = dec.BooleanWidth;
+                //expando.BooleanWidth = dec.BooleanWidth;
 
-                SaveDecomposition(dec, "Decompositions", Path.GetFileNameWithoutExtension(expando.FileName));
+                SaveDecomposition(dec, "Decompositions2", Path.GetFileNameWithoutExtension(expando.FileName));
                 expando.Written = "Done";
             }
             else

@@ -77,8 +77,10 @@
     <Compile Include="Datastructures\BinTree.cs" />
     <Compile Include="Datastructures\BipartiteGraph.cs" />
     <Compile Include="Datastructures\BitSet.cs" />
+    <Compile Include="Datastructures\BooleanChain.cs" />
     <Compile Include="Datastructures\dNeighborhood.cs" />
     <Compile Include="Datastructures\Graph.cs" />
+    <Compile Include="Datastructures\PriorityQueue.cs" />
     <Compile Include="Datastructures\Set.cs" />
     <Compile Include="Algorithms\SigmaRho\Problems\SigmaRhoInstance.cs" />
     <Compile Include="Datastructures\Decompositions\Decomposition.cs" />
